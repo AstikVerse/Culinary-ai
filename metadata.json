@@ -1,0 +1,7 @@
+{
+  "name": "CulinaryAI Fridge Assistant",
+  "description": "Smart culinary assistant that analyzes your fridge to suggest recipes.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
