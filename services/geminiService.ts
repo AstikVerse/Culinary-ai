@@ -27,7 +27,7 @@ export const analyzeFridgeImage = async (
   cuisine: Cuisine,
   mealType: MealType
 ): Promise<Recipe[]> => {
-  // Use gemini-3-pro-preview for advanced multimodal reasoning.
+  // Use the recommended model for complex reasoning and image analysis.
   const model = "gemini-3-pro-preview";
 
   const prompt = `
@@ -50,7 +50,7 @@ export const analyzeFridgeImage = async (
   `;
 
   try {
-    // Correctly call generateContent with model and parameters.
+    // Call generateContent directly using the ai.models.generateContent pattern.
     const response = await ai.models.generateContent({
       model: model,
       contents: [
@@ -129,7 +129,7 @@ export const chatWithChef = async (
   userMessage: string,
   contextRecipes: Recipe[]
 ): Promise<string> => {
-  // Use gemini-3-flash-preview for chat tasks.
+  // Use gemini-3-flash-preview for basic text tasks/chat.
   const model = "gemini-3-flash-preview";
   const recipeContext = contextRecipes.length > 0 
     ? `The user is looking at: ${contextRecipes.map(r => r.title).join(', ')}.`
@@ -139,17 +139,15 @@ export const chatWithChef = async (
      const response = await ai.models.generateContent({
       model: model,
       contents: [
+        { role: 'user', parts: [{ text: `System: You are a professional, friendly Chef Assistant. ${recipeContext}` }] },
         ...history.map(msg => ({
           role: msg.role === 'model' ? 'model' : 'user',
           parts: [{ text: msg.text }]
         })),
         { role: 'user', parts: [{ text: userMessage }] }
       ],
-      config: {
-        systemInstruction: `You are a professional, friendly Chef Assistant. ${recipeContext}`
-      }
     });
-    // Correctly access response.text property.
+    // Access text property directly.
     return response.text || "I'm not sure, but let's get cooking!";
   } catch (error) {
     console.error("Chat Failed:", error);

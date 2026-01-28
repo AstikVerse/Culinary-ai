@@ -129,7 +129,6 @@ export interface AppState {
   isLoggedIn: boolean;
   userRole: 'user' | 'admin' | 'chef'; // NEW: Track who is logged in
   username?: string;
-  currentUserId: string; // Added to fix App.tsx state errors
   showChat: boolean;
   
   // Views updated to include specific chef dashboard

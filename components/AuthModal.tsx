@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { IconChefHat, IconUser, IconLock, IconShield, IconBriefcase, IconClose } from './Icons';
 import { translations } from '../utils/translations';
 import { Language } from '../types';
-import { login, signup } from '../services/firebaseService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -17,37 +16,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, 
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState<'user' | 'chef' | 'admin'>(onlyAdmin ? 'admin' : 'user');
   const [lang, setLang] = useState<Language>(initialLanguage);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const t = translations[lang];
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      if (isLogin) {
-        await login(email, password);
-      } else {
-        await signup(email, password);
-      }
-      onLogin(role, lang);
-    } catch (err: any) {
-      setError(err.message || "Authentication failed");
-    } finally {
-      setLoading(false);
-    }
+    onLogin(role, lang);
   };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-stone-900/20 border border-white/50 overflow-hidden relative animate-slide-up">
         
+        {/* Close Button */}
         <button 
             onClick={onClose}
             className="absolute top-4 right-4 z-30 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full backdrop-blur-md transition-colors"
@@ -55,6 +38,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, 
             <IconClose className="w-5 h-5" />
         </button>
 
+        {/* Banner */}
         <div className={`p-8 pb-12 text-center relative overflow-hidden transition-colors duration-500 ${
             role === 'admin' ? 'bg-stone-800' : 
             role === 'chef' ? 'bg-emerald-600' : 
@@ -77,6 +61,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, 
             </div>
         </div>
 
+        {/* Floating Role Tabs - Hidden if onlyAdmin is true */}
         {!onlyAdmin ? (
             <div className="relative -mt-6 px-8 z-20">
                 <div className="flex bg-white rounded-xl shadow-lg border border-stone-100 p-1">
@@ -104,6 +89,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, 
             <div className="h-6 bg-white rounded-t-[2rem] relative -mt-6 z-20"></div>
         )}
 
+        {/* Form */}
         <div className="px-8 pb-8 pt-2">
             {!onlyAdmin && (
             <div className="flex gap-4 mb-6">
@@ -122,12 +108,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, 
             </div>
             )}
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 text-red-600 text-xs font-bold rounded-xl border border-red-100">
-                {error}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider ml-1">{t.email}</label>
@@ -136,8 +116,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, 
                         <input 
                             type="email" 
                             required 
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            autoFocus
                             placeholder={role === 'admin' ? "admin@culinaryai.com" : role === 'chef' ? "chef@kitchen.com" : "user@example.com"}
                             className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-stone-700 font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-stone-300"
                         />
@@ -151,8 +130,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, 
                         <input 
                             type="password" 
                             required 
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
                             className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-stone-700 font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-stone-300"
                         />
@@ -162,16 +139,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, 
                 <div className="pt-2">
                     <button 
                         type="submit"
-                        disabled={loading}
-                        className={`w-full text-white font-bold py-4 rounded-xl transform active:scale-[0.98] transition-all shadow-lg hover:shadow-xl ${loading ? 'opacity-50 cursor-not-allowed' : ''} ${
+                        className={`w-full text-white font-bold py-4 rounded-xl transform active:scale-[0.98] transition-all shadow-lg hover:shadow-xl ${
                             role === 'admin' ? 'bg-stone-900 hover:bg-black shadow-stone-900/20' : 
                             role === 'chef' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20' : 
                             'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 shadow-orange-600/20'
                         }`}
                     >
-                        {loading ? 'Processing...' : (isLogin 
+                        {isLogin 
                         ? (role === 'user' ? t.login_user : role === 'chef' ? t.login_chef : t.login_admin)
-                        : t.create_account)}
+                        : t.create_account}
                     </button>
                 </div>
             </form>
