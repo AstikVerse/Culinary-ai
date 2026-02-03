@@ -2,8 +2,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Recipe, Language, Cuisine, MealType, ChatMessage } from "../types";
 
-// Initialize the GoogleGenAI client with the API key from environment variables.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Utility to extract JSON from potentially markdown-wrapped strings (e.g., ```json ... ```)
+const cleanJsonString = (str: string): string => {
+  const jsonMatch = str.match(/\[[\s\S]*\]/); // We expect an array for recipes
+  return jsonMatch ? jsonMatch[0] : str;
+};
 
 export const fileToGenerativePart = async (file: File): Promise<{ mimeType: string; data: string }> => {
   return new Promise((resolve, reject) => {
@@ -27,41 +30,42 @@ export const analyzeFridgeImage = async (
   cuisine: Cuisine,
   mealType: MealType
 ): Promise<Recipe[]> => {
-  // Use the recommended model for complex reasoning and image analysis.
-  const model = "gemini-3-pro-preview";
+  // Always initialize GoogleGenAI right before making the API call to ensure use of the correct environment key.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  // Use gemini-3-flash-preview for high performance and reliable structured JSON extraction.
+  const model = "gemini-3-flash-preview";
+
+  const systemInstruction = `You are a professional culinary AI assistant.
+    Context:
+    - User meal preference: ${mealType === 'Any' ? 'general meal' : mealType}
+    - Preferred cuisine: ${cuisine}
+    - Target language for output: ${language}
+    - Dietary restrictions: ${dietaryPreferences.length > 0 ? dietaryPreferences.join(', ') : 'None'}`;
 
   const prompt = `
     Analyze this image of a refrigerator or food ingredients.
     
-    CONTEXT:
-    - User wants to cook a ${mealType === 'Any' ? 'meal' : mealType}.
-    - Preferred Cuisine Style: ${cuisine}.
-    - Output Language: ${language}.
-    
     TASKS:
-    1. Identify visible ingredients.
-    2. Suggest 4-6 recipes based on PREFERRED CUISINE (${cuisine}).
-    3. STRICTLY follow dietary filters: ${dietaryPreferences.join(', ')}.
-    4. For each recipe, list ALL required ingredients. 
-    5. Provide concise step-by-step instructions in ${language}.
-    6. Generate specific "youtubeQuery" and "beveragePairing".
-
-    Return data in strict JSON format.
+    1. Identify all visible ingredients.
+    2. Suggest 4-6 creative recipes based on these ingredients and the ${cuisine} cuisine style.
+    3. STRICTLY respect these dietary filters: ${dietaryPreferences.join(', ')}.
+    4. Provide clear, step-by-step instructions in ${language}.
+    
+    Return the result as a valid JSON array of recipe objects. Do not include any text, markdown, or commentary outside the JSON array.
   `;
 
   try {
-    // Call generateContent directly using the ai.models.generateContent pattern.
     const response = await ai.models.generateContent({
       model: model,
-      contents: [
-        {
-          parts: [
-            { inlineData: { mimeType, data: base64Image } },
-            { text: prompt },
-          ],
-        }
-      ],
+      contents: {
+        parts: [
+          { inlineData: { mimeType, data: base64Image } },
+          { text: prompt },
+        ],
+      },
       config: {
+        systemInstruction,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -106,21 +110,29 @@ export const analyzeFridgeImage = async (
                 items: { type: Type.STRING }
               }
             },
-            required: ["id", "title", "description", "difficulty", "prepTime", "calories", "ingredients", "instructions", "dietaryTags", "beveragePairing", "chefsSecret"]
+            required: ["title", "description", "difficulty", "prepTime", "ingredients", "instructions"]
           }
         }
       }
     });
 
-    // Access text property directly from GenerateContentResponse.
-    if (response.text) {
-      const recipes = JSON.parse(response.text) as Recipe[];
-      return recipes.map((r, idx) => ({ ...r, id: r.id || `recipe-${idx}-${Date.now()}` }));
+    const resultText = response.text;
+    if (resultText) {
+      const cleanedJson = cleanJsonString(resultText);
+      const recipes = JSON.parse(cleanedJson) as Recipe[];
+      return recipes.map((r, idx) => ({ 
+        ...r, 
+        id: r.id || `recipe-${idx}-${Date.now()}`,
+        dietaryTags: r.dietaryTags || [],
+        calories: r.calories || 0,
+        chefsSecret: r.chefsSecret || "Chef's Tip: Use fresh ingredients for the best taste.",
+        beveragePairing: r.beveragePairing || { name: "Water", description: "The classic choice." }
+      }));
     }
     return [];
   } catch (error) {
     console.error("Gemini Analysis Failed:", error);
-    throw error;
+    return [];
   }
 };
 
@@ -129,28 +141,37 @@ export const chatWithChef = async (
   userMessage: string,
   contextRecipes: Recipe[]
 ): Promise<string> => {
-  // Use gemini-3-flash-preview for basic text tasks/chat.
+  // Always initialize GoogleGenAI right before making the API call.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const model = "gemini-3-flash-preview";
+  
   const recipeContext = contextRecipes.length > 0 
-    ? `The user is looking at: ${contextRecipes.map(r => r.title).join(', ')}.`
-    : "The user hasn't scanned their fridge yet.";
+    ? `The user is currently considering these recipes: ${contextRecipes.map(r => r.title).join(', ')}.`
+    : "The user has not scanned any ingredients yet.";
+
+  const systemInstruction = `You are a professional, friendly, and encouraging world-class Chef Assistant. 
+    ${recipeContext}
+    Provide helpful cooking tips, ingredient substitutions, and answers to culinary questions. 
+    Keep your tone professional yet accessible.`;
 
   try {
      const response = await ai.models.generateContent({
       model: model,
       contents: [
-        { role: 'user', parts: [{ text: `System: You are a professional, friendly Chef Assistant. ${recipeContext}` }] },
         ...history.map(msg => ({
           role: msg.role === 'model' ? 'model' : 'user',
           parts: [{ text: msg.text }]
         })),
         { role: 'user', parts: [{ text: userMessage }] }
       ],
+      config: {
+        systemInstruction
+      }
     });
-    // Access text property directly.
-    return response.text || "I'm not sure, but let's get cooking!";
+    
+    return response.text || "I'm here to help with your cooking journey!";
   } catch (error) {
     console.error("Chat Failed:", error);
-    return "Sorry, I'm having trouble connecting right now.";
+    return "I'm having a little trouble in the kitchen right now. Let's try again in a moment!";
   }
 };

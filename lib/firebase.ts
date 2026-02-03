@@ -1,9 +1,9 @@
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+// Use the standardized modular import for initializeApp from firebase/app
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
-// Replace these placeholders with your actual Firebase project configuration from the Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyC2mbFLTxsbVLAezIAmgDU0j9zaDEaQMvE",
   authDomain: "culinaryai-20d5b.firebaseapp.com",
@@ -14,6 +14,8 @@ const firebaseConfig = {
   measurementId: "G-KSRE8FRF7X"
 };
 
+// Fix for Module '"firebase/app"' has no exported member 'initializeApp'
+// Ensure modular Firebase initialization is used
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { analyzeFridgeImage, fileToGenerativePart } from './services/geminiService';
 import { Recipe, AppState, AVAILABLE_FILTERS, Ingredient, Language, Cuisine, MealType, ChefProfile, ChefApplication, ChefBookingRequest, User, Transaction, Payout, AppSettings } from './types';
@@ -13,7 +12,7 @@ import { FeedbackModal } from './components/FeedbackModal';
 import { IconCamera, IconShoppingList, IconChefHat, IconUpload, IconGlobe, IconMap, IconUtensils, IconCheck, IconChat, IconClose, IconLogout, IconStar, IconVideo, IconBriefcase, IconCart, IconExternalLink, IconMenu, IconSearch, IconUser, IconDashboard, IconCalendar, IconWallet, IconSettings, IconClock, IconFilter, IconRefresh, IconLadyChef, StickerMascot } from './components/Icons';
 import { translations } from './utils/translations';
 
-// Live Database Imports using importmap
+// Use standard module imports for Firebase
 import { db, auth } from './lib/firebase';
 import { collection, onSnapshot, doc, updateDoc, addDoc, query, where, setDoc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -72,11 +71,9 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // 1. LIVE AUTH LISTENER + ROLE FETCHER
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Fetch role from Firestore
         const userRef = doc(db, 'users', user.uid);
         const userSnap = await getDoc(userRef);
         let role: 'user' | 'admin' | 'chef' = 'user';
@@ -100,7 +97,6 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // 2. LIVE DATABASE LISTENERS
   useEffect(() => {
     const unsubChefs = onSnapshot(collection(db, 'chefs'), (snapshot) => {
       const chefs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ChefProfile));
@@ -168,7 +164,6 @@ function App() {
         );
         setState(prev => ({ ...prev, recipes, analyzing: false }));
         
-        // Show the Mascot Trigger after successful analysis
         setTimeout(() => setShowMascotTrigger(true), 2500);
 
         if (state.isLoggedIn && state.username) {
@@ -181,7 +176,7 @@ function App() {
         }
     } catch (error) {
         console.error("Analysis failed", error);
-        setState(prev => ({ ...prev, analyzing: false }));
+        setState(prev => ({ ...prev, analyzing: false, recipes: [] }));
     }
   };
 
@@ -248,7 +243,6 @@ function App() {
 
   const handleCuisineChange = (newCuisine: Cuisine) => {
     setState(prev => ({ ...prev, cuisine: newCuisine }));
-    localStorage.setItem('culinaryAi_cuisine', newCuisine);
   };
 
   const toggleFilter = (filterId: string) => {
@@ -258,7 +252,6 @@ function App() {
         : [...state.dietaryFilters, filterId];
 
     setState(prev => ({ ...prev, dietaryFilters: newFilters }));
-    localStorage.setItem('culinaryAi_diet', JSON.stringify(newFilters));
   };
 
   const handleAddMissingIngredients = (ingredientNames: string[]) => {
@@ -270,7 +263,6 @@ function App() {
     if (newItems.length > 0) {
       const newList = [...state.shoppingList, ...newItems];
       setState(prev => ({ ...prev, shoppingList: newList }));
-      localStorage.setItem('culinaryAi_shoppingList', JSON.stringify(newList));
       setShoppingListBump(true);
       setTimeout(() => setShoppingListBump(false), 300);
     }
@@ -280,7 +272,6 @@ function App() {
     const newList = [...state.shoppingList];
     newList.splice(index, 1);
     setState(prev => ({ ...prev, shoppingList: newList }));
-    localStorage.setItem('culinaryAi_shoppingList', JSON.stringify(newList));
   };
 
   const handleLogin = (role: 'user' | 'admin' | 'chef', lang: Language) => {
@@ -313,109 +304,8 @@ function App() {
     setMobileMenuOpen(false);
   };
 
-  const handleDeleteAccount = () => {
-      alert("Your account deletion request has been registered.");
-      handleLogout();
-  };
-
-  const handleChefApplication = async (data: Omit<ChefApplication, 'id' | 'status' | 'appliedDate'>) => {
-    try {
-        await addDoc(collection(db, 'applications'), {
-          ...data,
-          userId: state.userId || null,
-          status: 'pending',
-          appliedDate: new Date().toLocaleDateString()
-        });
-    } catch (err) {
-        console.error("Application failed:", err);
-    }
-  };
-
-  const handleApproveChef = async (app: ChefApplication) => {
-    const newChef: Omit<ChefProfile, 'id'> = {
-      name: `${app.firstName} ${app.lastName}`,
-      email: app.email,
-      mobile: '+91 00000 00000',
-      speciality: app.specialty,
-      rating: 5.0, 
-      reviews: 0,
-      price: 1500,
-      hourlyRate: 1500,
-      image: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-      badges: ['New Joiner'],
-      joinedDate: new Date().toISOString(),
-      status: 'Active'
-    };
-
-    try {
-        await addDoc(collection(db, 'chefs'), newChef);
-        await updateDoc(doc(db, 'applications', app.id), { status: 'approved' });
-        if (app.userId) {
-            await updateDoc(doc(db, 'users', app.userId), { role: 'chef' });
-        }
-    } catch (err) {
-        console.error("Approval failed:", err);
-        alert("Failed to approve chef.");
-    }
-  };
-
-  const handleRejectChef = async (id: string) => {
-     try {
-         await updateDoc(doc(db, 'applications', id), { status: 'rejected' });
-     } catch (err) {
-         console.error("Rejection failed:", err);
-     }
-  };
-
-  const handleBlockUser = async (id: string) => {
-      const userRef = doc(db, 'users', id);
-      const user = state.users.find(u => u.id === id);
-      if (user) {
-          await updateDoc(userRef, { status: user.status === 'Active' ? 'Blocked' : 'Active' });
-      }
-  };
-
-  const handleSuspendChef = async (id: string) => {
-      const chefRef = doc(db, 'chefs', id);
-      const chef = state.chefs.find(c => c.id === id);
-      if (chef) {
-          await updateDoc(chefRef, { status: chef.status === 'Active' ? 'Suspended' : 'Active' });
-      }
-  };
-
-  const handleAdminBookingAction = async (action: string, id: string) => {
-      const bookingRef = doc(db, 'bookings', id);
-      let updates: any = {};
-      if (action === 'Approve') {
-          updates.status = 'confirmed';
-          updates.paymentStatus = 'Paid';
-      } else if (action === 'Cancel') {
-          updates.status = 'cancelled';
-      } else if (action === 'Refund') {
-          updates.paymentStatus = 'Refunded';
-      }
-      await updateDoc(bookingRef, updates);
-  };
-
-  const handleReleasePayout = async (id: string) => {
-      await updateDoc(doc(db, 'payouts', id), { status: 'Completed', amount: 0 });
-  };
-
-  const handleChefAcceptBooking = async (id: string) => {
-      await updateDoc(doc(db, 'bookings', id), { status: 'confirmed' });
-  };
-
-  const handleChefDeclineBooking = async (id: string) => {
-      await updateDoc(doc(db, 'bookings', id), { status: 'declined' });
-  };
-
   const handleViewChange = (newView: AppState['view']) => {
       setState(prev => ({ ...prev, view: newView }));
-      setMobileMenuOpen(false);
-  };
-
-  const handleChefTabChange = (newTab: AppState['chefDashboardTab']) => {
-      setState(prev => ({ ...prev, chefDashboardTab: newTab }));
       setMobileMenuOpen(false);
   };
 
@@ -429,15 +319,6 @@ function App() {
     });
   };
 
-  const handleUpdateSettings = async (newSettings: AppSettings) => {
-    setState(prev => ({ ...prev, appSettings: newSettings }));
-    try {
-        await setDoc(doc(db, 'settings', 'global'), newSettings as any);
-    } catch (err) {
-        console.error("Failed to update settings:", err);
-    }
-  };
-
   const filteredRecipes = state.recipes.filter(recipe => {
     const query = state.searchQuery.toLowerCase();
     return (
@@ -446,38 +327,15 @@ function App() {
     );
   });
 
-  if (state.appSettings.maintenanceMode && state.userRole !== 'admin') {
-      return (
-          <div className="h-[100dvh] bg-[#1c1917] flex flex-col items-center justify-center p-4 text-center">
-            <div className="bg-[#292524] p-8 rounded-2xl shadow-xl max-sm w-full border border-[#44403c] flex flex-col items-center">
-                <div className="w-20 h-20 bg-[#451a03] rounded-full flex items-center justify-center mb-6 shadow-lg">
-                    <IconSettings className="w-10 h-10 text-orange-500 animate-spin" />
-                </div>
-                <h1 className="text-2xl font-bold text-white mb-3 tracking-tight">System Maintenance</h1>
-                <p className="text-[#a8a29e] text-sm mb-8 leading-relaxed">
-                    We are upgrading our engine. Be back soon!
-                </p>
-                <button onClick={() => setShowAuthModal(true)} className="w-full bg-white text-stone-900 py-3 rounded-xl font-bold hover:bg-orange-50 transition-colors uppercase tracking-wider text-xs shadow-lg">
-                    ADMIN LOGIN
-                </button>
-            </div>
-            <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onLogin={handleLogin} initialLanguage={state.language} onlyAdmin />
-          </div>
-      )
-  }
-
   return (
     <div className={`flex h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? 'bg-[#0f0f0f] text-stone-200' : 'bg-[#f8fafc] text-stone-800'}`}>
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onLogin={handleLogin} initialLanguage={state.language} />
       <FeedbackModal isOpen={showFeedbackModal} onClose={() => { setShowFeedbackModal(false); setShowMascotTrigger(false); }} userId={state.userId || 'guest'} username={state.username || 'Guest'} />
       
-      {/* AskDisha Styled Mascot Feedback Trigger */}
       {showMascotTrigger && (
           <div className="fixed bottom-24 right-6 z-40 flex flex-col items-end gap-3 pointer-events-none group">
-              {/* Speech Bubble Section */}
               <div className="relative animate-in slide-in-from-bottom-4 duration-500 pointer-events-auto">
                    <div className="bg-white px-5 py-3 rounded-2xl shadow-2xl border border-stone-100 flex items-center gap-3">
-                        {/* Close button inside bubble like in user image */}
                         <button onClick={() => setShowMascotTrigger(false)} className="bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600 transition-colors">
                             <div className="w-3 h-0.5 bg-white"></div>
                         </button>
@@ -488,11 +346,9 @@ function App() {
                             </p>
                         </div>
                    </div>
-                   {/* Speech bubble tail */}
                    <div className="absolute -bottom-2 right-8 w-4 h-4 bg-white border-b border-r border-stone-100 rotate-45"></div>
               </div>
 
-              {/* Sticker Button */}
               <button 
                 onClick={() => setShowFeedbackModal(true)}
                 className="pointer-events-auto transform hover:scale-105 active:scale-95 transition-all animate-in fade-in zoom-in duration-700 delay-300"
@@ -526,9 +382,6 @@ function App() {
                 <button onClick={() => handleViewChange('shopping')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${state.view === 'shopping' ? (isDarkMode ? 'bg-white/5 text-[#FEF08A] font-bold' : 'bg-orange-50 text-orange-700 font-bold') : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700'}`}>
                     <div className={`relative ${shoppingListBump ? 'animate-bump text-orange-600' : ''}`}><IconShoppingList className="w-5 h-5" /></div><span>{t.nav_shopping}</span>
                 </button>
-                <button onClick={() => handleViewChange('chef-booking')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${state.view === 'chef-booking' ? (isDarkMode ? 'bg-white/5 text-[#FEF08A] font-bold' : 'bg-orange-50 text-orange-700 font-bold') : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700'}`}>
-                    <IconBriefcase className="w-5 h-5" /><span>{t.nav_hire}</span>
-                </button>
             </div>
             <div className="pt-2">
                 <h3 className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3 px-3">Culinary Profile</h3>
@@ -540,10 +393,7 @@ function App() {
                             <option value="Indian">Indian</option>
                             <option value="Italian">Italian</option>
                             <option value="Mexican">Mexican</option>
-                            <option value="Spanish">Spanish</option>
                             <option value="Asian">Asian</option>
-                            <option value="American">American</option>
-                            <option value="Mediterranean">Mediterranean</option>
                         </select>
                     </div>
                     <div className="space-y-2">
@@ -574,7 +424,7 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         {state.view !== 'admin-dashboard' && state.view !== 'chef-partner-dashboard' && (
         <header className={`md:hidden h-16 backdrop-blur-md border-b flex items-center justify-between px-4 z-30 sticky top-0 flex-shrink-0 ${isDarkMode ? 'bg-[#0f0f0f]/80 border-white/5' : 'bg-white/80 border-stone-200'}`}>
-             <div className="flex items-center gap-3"><button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg"><IconMenu className="w-6 h-6" /></button><h1 className={`text-lg font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-stone-800'}`}>{state.userRole === 'chef' ? <IconBriefcase className="w-5 h-5 text-emerald-600" /> : <IconChefHat className="w-5 h-5 text-orange-600" />}CulinaryAI</h1></div>
+             <div className="flex items-center gap-3"><button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg"><IconMenu className="w-6 h-6" /></button><h1 className={`text-lg font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-stone-800'}`}>CulinaryAI</h1></div>
              {!state.isLoggedIn && <button onClick={() => setShowAuthModal(true)} className="bg-stone-900 text-white text-xs font-bold px-4 py-2 rounded-lg">Login</button>}
         </header>
         )}
@@ -605,9 +455,6 @@ function App() {
           )}
           {state.view === 'favorites' && (<div className="max-w-[1600px] mx-auto animate-slide-up"><h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight mb-2 ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>{t.nav_favorites}</h2>{state.favorites.length === 0 ? (<div className={`py-32 text-center rounded-2xl border shadow-sm ${isDarkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-stone-100'}`}><IconStar className="w-12 h-12 text-orange-400 mx-auto mb-6" /><p className="text-xl font-bold text-stone-700">{t.empty_list}</p></div>) : (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pb-10">{state.favorites.map(recipe => (<RecipeCard key={recipe.id} recipe={recipe} onCook={(r) => setState(prev => ({ ...prev, selectedRecipe: r, view: 'cooking' }))} onAddMissing={handleAddMissingIngredients} isFavorite onToggleFavorite={() => toggleFavorite(recipe)} language={state.language} />))}</div>)}</div>)}
           {state.view === 'shopping' && (<div className="max-w-5xl mx-auto animate-slide-up"><h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight mb-8 ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>{t.shopping_title}</h2><div className={`rounded-2xl shadow-xl border overflow-hidden min-h-[500px] relative ${isDarkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-white shadow-stone-200/50'}`}>{state.shoppingList.length === 0 ? (<div className="h-full py-32 text-center text-stone-400 flex flex-col items-center justify-center"><IconShoppingList className="w-16 h-16 opacity-30 mb-6" /><p className="text-lg font-medium">{t.empty_list}</p></div>) : (<ul className={`divide-y ${isDarkMode ? 'divide-white/5' : 'divide-stone-100'}`}>{state.shoppingList.map((item, idx) => (<li key={`${item.name}-${idx}`} className="p-6 md:p-8 flex items-center justify-between group transition-colors"><div className="flex items-center gap-6"><button className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${isDarkMode ? 'border-white/10 hover:bg-orange-600' : 'border-stone-200 hover:bg-orange-500 text-transparent'}`} onClick={() => toggleShoppingItem(idx)}><IconCheck className="w-6 h-6 text-white" /></button><p className={`font-bold text-xl ${isDarkMode ? 'text-white' : 'text-stone-800'}`}>{item.name}</p></div></li>))}</ul>)}</div></div>)}
-          {state.view === 'chef-booking' && (<ChefBooking chefs={state.chefs} onApply={handleChefApplication} language={state.language} currentUser={state.username} />)}
-          {state.view === 'chef-partner-dashboard' && (<ChefDashboard bookings={state.chefBookings} onAccept={handleChefAcceptBooking} onDecline={handleChefDeclineBooking} activeTab={state.chefDashboardTab} onTabChange={handleChefTabChange} onDeleteAccount={handleDeleteAccount} onSignOut={handleLogout} />)}
-          {state.view === 'admin-dashboard' && (<AdminDashboard applications={state.chefApplications} approvedChefs={state.chefs} bookings={state.chefBookings} users={state.users} transactions={state.transactions} payouts={state.payouts} onApprove={handleApproveChef} onReject={handleRejectChef} onBlockUser={handleBlockUser} onSuspendChef={handleSuspendChef} onBookingAction={handleAdminBookingAction} onReleasePayout={handleReleasePayout} onClose={handleLogout} settings={state.appSettings} onUpdateSettings={handleUpdateSettings} />)}
           {state.view === 'cooking' && state.selectedRecipe && (<CookingMode recipe={state.selectedRecipe} onClose={() => setState(prev => ({ ...prev, view: 'dashboard', selectedRecipe: null }))} language={state.language} />)}
           {state.isLoggedIn && state.view !== 'upload' && !state.showChat && (<button onClick={() => setState(prev => ({ ...prev, showChat: true }))} className="fixed bottom-6 right-6 z-40 bg-orange-600 text-white p-4 rounded-full shadow-2xl hover:bg-orange-700 transition-all transform hover:scale-110"><IconChat className="w-6 h-6" /></button>)}
           {state.showChat && (<ChatBot history={state.chatHistory} setHistory={(h) => setState(prev => ({ ...prev, chatHistory: h }))} contextRecipes={state.recipes} onClose={() => setState(prev => ({ ...prev, showChat: false }))} />)}
