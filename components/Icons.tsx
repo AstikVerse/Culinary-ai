@@ -14,10 +14,7 @@ export const IconMoon = ({ className = "w-6 h-6" }: { className?: string }) => (
 
 export const StickerMascot = ({ className = "w-24 h-24" }: { className?: string }) => (
   <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
-    {/* Blue Outer Circle */}
     <circle cx="50" cy="50" r="48" fill="#007bff" />
-    
-    {/* Text around the circle */}
     <defs>
       <path id="circlePath" d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" />
     </defs>
@@ -26,29 +23,16 @@ export const StickerMascot = ({ className = "w-24 h-24" }: { className?: string 
         RATE THE AI CHEF • GIVE FEEDBACK • RATE THE AI CHEF • 
       </textPath>
     </text>
-
-    {/* White Inner Circle */}
     <circle cx="50" cy="50" r="32" fill="white" />
-
-    {/* Lady Chef Character Illustration */}
     <g transform="translate(22, 22) scale(0.6)">
-        {/* Hair */}
         <path d="M46.5 12C28.5 12 18 24 18 42C18 48 21 54 24 57L21 75H72L69 57C72 54 75 48 75 42C75 24 64.5 12 46.5 12Z" fill="#333" />
         <circle cx="46.5" cy="10" r="10" fill="#333" />
-        
-        {/* Face */}
         <path d="M28 42C28 54 36.5 63 46.5 63C56.5 63 65 54 65 42C65 30 56.5 24 46.5 24C36.5 24 28 30 28 42Z" fill="#FFDBAC" />
-        
-        {/* Features */}
         <circle cx="40" cy="40" r="3" fill="#333" />
         <circle cx="53" cy="40" r="3" fill="#333" />
         <path d="M42 52C42 52 44 56 46.5 56C49 56 51 52 51 52" stroke="#E57373" strokeWidth="2" strokeLinecap="round" fill="none" />
-        
-        {/* Body/Saree Style */}
         <path d="M21 75C21 75 15 85 15 95V105H78V95C78 85 72 75 72 75H21Z" fill="#007bff" />
         <path d="M30 75L60 105" stroke="white" strokeWidth="8" strokeOpacity="0.2" />
-        
-        {/* Logo on dress */}
         <circle cx="65" cy="85" r="5" fill="white" />
         <circle cx="65" cy="85" r="3" fill="#007bff" />
     </g>
@@ -281,7 +265,7 @@ export const IconRupee = ({ className = "w-6 h-6" }: { className?: string }) => 
 
 export const IconUsers = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375a3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
   </svg>
 );
 
