@@ -70,7 +70,7 @@ export const analyzeFridgeImage = async (
               id: { type: Type.STRING },
               title: { type: Type.STRING },
               description: { type: Type.STRING },
-              difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] },
+              difficulty: { type: Type.STRING },
               prepTime: { type: Type.STRING },
               calories: { type: Type.INTEGER },
               cuisine: { type: Type.STRING },
@@ -82,7 +82,8 @@ export const analyzeFridgeImage = async (
                   name: { type: Type.STRING },
                   description: { type: Type.STRING }
                 },
-                required: ["name", "description"]
+                required: ["name", "description"],
+                propertyOrdering: ["name", "description"]
               },
               dietaryTags: {
                 type: Type.ARRAY,
@@ -97,7 +98,8 @@ export const analyzeFridgeImage = async (
                     quantity: { type: Type.STRING },
                     isAvailable: { type: Type.BOOLEAN }
                   },
-                  required: ["name", "quantity", "isAvailable"]
+                  required: ["name", "quantity", "isAvailable"],
+                  propertyOrdering: ["name", "quantity", "isAvailable"]
                 }
               },
               instructions: {
@@ -105,7 +107,8 @@ export const analyzeFridgeImage = async (
                 items: { type: Type.STRING }
               }
             },
-            required: ["title", "description", "difficulty", "prepTime", "ingredients", "instructions"]
+            required: ["title", "description", "difficulty", "prepTime", "ingredients", "instructions"],
+            propertyOrdering: ["id", "title", "description", "difficulty", "prepTime", "calories", "cuisine", "youtubeQuery", "chefsSecret", "beveragePairing", "dietaryTags", "ingredients", "instructions"]
           }
         }
       }
@@ -138,7 +141,7 @@ export const chatWithChef = async (
   userMessage: string,
   contextRecipes: Recipe[]
 ): Promise<string> => {
-  // Always initialize GoogleGenAI right before making the API call.
+  // Always initialize GoogleGenAI right before making the API call to ensure the latest API key is used.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   // Use gemini-3-pro-preview for complex reasoning and professional conversational tasks.
   const model = "gemini-3-pro-preview";
