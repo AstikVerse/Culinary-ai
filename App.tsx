@@ -245,6 +245,10 @@ function App() {
     setState(prev => ({ ...prev, cuisine: newCuisine }));
   };
 
+  const handleLanguageChange = (newLang: Language) => {
+    setState(prev => ({ ...prev, language: newLang }));
+  };
+
   const toggleFilter = (filterId: string) => {
     const isActive = state.dietaryFilters.includes(filterId);
     const newFilters = isActive 
@@ -406,10 +410,31 @@ function App() {
                             ))}
                         </div>
                     </div>
+                    <div className="space-y-1 pt-2">
+                        <label className="text-[9px] font-black text-stone-500 uppercase tracking-widest px-1">Language</label>
+                        <select value={state.language} onChange={(e) => handleLanguageChange(e.target.value as Language)} className={`w-full border text-xs rounded-lg block p-2.5 outline-none cursor-pointer transition-colors font-bold ${isDarkMode ? 'bg-white/5 border-white/10 text-stone-300' : 'bg-stone-50 border-stone-200 text-stone-700'}`}>
+                            <option value="English">English</option>
+                            <option value="Hindi">हिंदी</option>
+                            <option value="Spanish">Español</option>
+                            <option value="French">Français</option>
+                            <option value="German">Deutsch</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </nav>
         <div className={`p-4 border-t mt-auto flex-shrink-0 ${isDarkMode ? 'border-white/5 bg-black/10' : 'border-stone-100 bg-stone-50'}`}>
+             <div className="mb-4 px-2">
+                <button 
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className={`w-full flex items-center justify-between px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isDarkMode ? 'bg-white/5 text-stone-300' : 'bg-stone-100 text-stone-600'}`}
+                >
+                    <span>Theme: {isDarkMode ? 'Dark' : 'Light'}</span>
+                    <div className={`w-8 h-4 rounded-full p-1 transition-colors ${isDarkMode ? 'bg-orange-600' : 'bg-stone-300'}`}>
+                        <div className={`w-2 h-2 bg-white rounded-full transition-transform ${isDarkMode ? 'translate-x-4' : 'translate-x-0'}`} />
+                    </div>
+                </button>
+             </div>
              {state.isLoggedIn ? (
                 <div className="space-y-2">
                     <div className="px-3 pb-2"><p className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Logged in as</p><p className="text-xs font-bold truncate text-stone-600">{state.username}</p></div>

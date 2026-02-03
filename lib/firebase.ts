@@ -1,5 +1,4 @@
-
-// Use the standardized modular import for initializeApp from firebase/app
+// Standard modular Firebase imports for v9+ SDK
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -14,8 +13,7 @@ const firebaseConfig = {
   measurementId: "G-KSRE8FRF7X"
 };
 
-// Fix for Module '"firebase/app"' has no exported member 'initializeApp'
-// Ensure modular Firebase initialization is used
+// Initialize the Firebase instance using the modular approach
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
