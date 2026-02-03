@@ -9,7 +9,7 @@ import { ChefBooking } from './components/ChefBooking';
 import { AdminDashboard } from './components/AdminDashboard';
 import { ChefDashboard } from './components/ChefDashboard';
 import { FeedbackModal } from './components/FeedbackModal';
-import { IconCamera, IconShoppingList, IconChefHat, IconUpload, IconGlobe, IconMap, IconUtensils, IconCheck, IconChat, IconClose, IconLogout, IconStar, IconVideo, IconBriefcase, IconCart, IconExternalLink, IconMenu, IconSearch, IconUser, IconDashboard, IconCalendar, IconWallet, IconSettings, IconClock, IconFilter, IconRefresh, IconLadyChef, StickerMascot } from './components/Icons';
+import { IconCamera, IconShoppingList, IconChefHat, IconUpload, IconGlobe, IconMap, IconUtensils, IconCheck, IconChat, IconClose, IconLogout, IconStar, IconVideo, IconBriefcase, IconCart, IconExternalLink, IconMenu, IconSearch, IconUser, IconDashboard, IconCalendar, IconWallet, IconSettings, IconClock, IconFilter, IconRefresh, IconLadyChef, StickerMascot, IconSun, IconMoon } from './components/Icons';
 import { translations } from './utils/translations';
 
 // Use standard module imports for Firebase
@@ -386,6 +386,10 @@ function App() {
                 <button onClick={() => handleViewChange('shopping')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${state.view === 'shopping' ? (isDarkMode ? 'bg-white/5 text-[#FEF08A] font-bold' : 'bg-orange-50 text-orange-700 font-bold') : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700'}`}>
                     <div className={`relative ${shoppingListBump ? 'animate-bump text-orange-600' : ''}`}><IconShoppingList className="w-5 h-5" /></div><span>{t.nav_shopping}</span>
                 </button>
+                {/* HIRE CHEF / CHEF PORTAL COMPULSORY ACCESS */}
+                <button onClick={() => handleViewChange('chef-booking')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${state.view === 'chef-booking' ? (isDarkMode ? 'bg-white/5 text-[#FEF08A] font-bold' : 'bg-orange-50 text-orange-700 font-bold') : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700'}`}>
+                    <IconBriefcase className="w-5 h-5" /><span>{t.nav_hire}</span>
+                </button>
             </div>
             <div className="pt-2">
                 <h3 className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3 px-3">Culinary Profile</h3>
@@ -410,6 +414,7 @@ function App() {
                             ))}
                         </div>
                     </div>
+                    {/* LANGUAGE OPTIONS BELOW DIETARY PREFERENCES */}
                     <div className="space-y-1 pt-2">
                         <label className="text-[9px] font-black text-stone-500 uppercase tracking-widest px-1">Language</label>
                         <select value={state.language} onChange={(e) => handleLanguageChange(e.target.value as Language)} className={`w-full border text-xs rounded-lg block p-2.5 outline-none cursor-pointer transition-colors font-bold ${isDarkMode ? 'bg-white/5 border-white/10 text-stone-300' : 'bg-stone-50 border-stone-200 text-stone-700'}`}>
@@ -424,12 +429,16 @@ function App() {
             </div>
         </nav>
         <div className={`p-4 border-t mt-auto flex-shrink-0 ${isDarkMode ? 'border-white/5 bg-black/10' : 'border-stone-100 bg-stone-50'}`}>
+             {/* LIGHT/DARK MODE TOGGLE JUST ABOVE LOGIN BUTTON */}
              <div className="mb-4 px-2">
                 <button 
                   onClick={() => setIsDarkMode(!isDarkMode)}
-                  className={`w-full flex items-center justify-between px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isDarkMode ? 'bg-white/5 text-stone-300' : 'bg-stone-100 text-stone-600'}`}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isDarkMode ? 'bg-white/5 text-stone-300' : 'bg-white text-stone-600 shadow-sm border border-stone-100'}`}
                 >
-                    <span>Theme: {isDarkMode ? 'Dark' : 'Light'}</span>
+                    <div className="flex items-center gap-2">
+                        {isDarkMode ? <IconMoon className="w-4 h-4 text-amber-400" /> : <IconSun className="w-4 h-4 text-orange-500" />}
+                        <span>Theme: {isDarkMode ? 'Dark' : 'Light'}</span>
+                    </div>
                     <div className={`w-8 h-4 rounded-full p-1 transition-colors ${isDarkMode ? 'bg-orange-600' : 'bg-stone-300'}`}>
                         <div className={`w-2 h-2 bg-white rounded-full transition-transform ${isDarkMode ? 'translate-x-4' : 'translate-x-0'}`} />
                     </div>
@@ -449,8 +458,25 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         {state.view !== 'admin-dashboard' && state.view !== 'chef-partner-dashboard' && (
         <header className={`md:hidden h-16 backdrop-blur-md border-b flex items-center justify-between px-4 z-30 sticky top-0 flex-shrink-0 ${isDarkMode ? 'bg-[#0f0f0f]/80 border-white/5' : 'bg-white/80 border-stone-200'}`}>
-             <div className="flex items-center gap-3"><button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg"><IconMenu className="w-6 h-6" /></button><h1 className={`text-lg font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-stone-800'}`}>CulinaryAI</h1></div>
-             {!state.isLoggedIn && <button onClick={() => setShowAuthModal(true)} className="bg-stone-900 text-white text-xs font-bold px-4 py-2 rounded-lg">Login</button>}
+             <div className="flex items-center gap-3">
+                <button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg">
+                    <IconMenu className="w-6 h-6" />
+                </button>
+                <h1 className={`text-lg font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-stone-800'}`}>CulinaryAI</h1>
+             </div>
+             
+             {/* LIGHT/DARK MODE SYMBOL NEAR LOGIN IN HEADER */}
+             <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'text-amber-400 hover:bg-white/10' : 'text-stone-500 hover:bg-stone-100'}`}
+                >
+                    {isDarkMode ? <IconMoon className="w-5 h-5" /> : <IconSun className="w-5 h-5" />}
+                </button>
+                {!state.isLoggedIn && (
+                    <button onClick={() => setShowAuthModal(true)} className="bg-stone-900 text-white text-xs font-bold px-4 py-2 rounded-lg">Login</button>
+                )}
+             </div>
         </header>
         )}
         <main className={`flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth ${isDarkMode ? 'bg-[#0f0f0f]' : 'bg-[#f8fafc]'}`}>
@@ -480,6 +506,7 @@ function App() {
           )}
           {state.view === 'favorites' && (<div className="max-w-[1600px] mx-auto animate-slide-up"><h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight mb-2 ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>{t.nav_favorites}</h2>{state.favorites.length === 0 ? (<div className={`py-32 text-center rounded-2xl border shadow-sm ${isDarkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-stone-100'}`}><IconStar className="w-12 h-12 text-orange-400 mx-auto mb-6" /><p className="text-xl font-bold text-stone-700">{t.empty_list}</p></div>) : (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pb-10">{state.favorites.map(recipe => (<RecipeCard key={recipe.id} recipe={recipe} onCook={(r) => setState(prev => ({ ...prev, selectedRecipe: r, view: 'cooking' }))} onAddMissing={handleAddMissingIngredients} isFavorite onToggleFavorite={() => toggleFavorite(recipe)} language={state.language} />))}</div>)}</div>)}
           {state.view === 'shopping' && (<div className="max-w-5xl mx-auto animate-slide-up"><h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight mb-8 ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>{t.shopping_title}</h2><div className={`rounded-2xl shadow-xl border overflow-hidden min-h-[500px] relative ${isDarkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-white shadow-stone-200/50'}`}>{state.shoppingList.length === 0 ? (<div className="h-full py-32 text-center text-stone-400 flex flex-col items-center justify-center"><IconShoppingList className="w-16 h-16 opacity-30 mb-6" /><p className="text-lg font-medium">{t.empty_list}</p></div>) : (<ul className={`divide-y ${isDarkMode ? 'divide-white/5' : 'divide-stone-100'}`}>{state.shoppingList.map((item, idx) => (<li key={`${item.name}-${idx}`} className="p-6 md:p-8 flex items-center justify-between group transition-colors"><div className="flex items-center gap-6"><button className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${isDarkMode ? 'border-white/10 hover:bg-orange-600' : 'border-stone-200 hover:bg-orange-500 text-transparent'}`} onClick={() => toggleShoppingItem(idx)}><IconCheck className="w-6 h-6 text-white" /></button><p className={`font-bold text-xl ${isDarkMode ? 'text-white' : 'text-stone-800'}`}>{item.name}</p></div></li>))}</ul>)}</div></div>)}
+          {state.view === 'chef-booking' && (<ChefBooking chefs={state.chefs} onApply={(app) => addDoc(collection(db, 'applications'), { ...app, status: 'pending', appliedDate: new Date().toLocaleDateString() })} language={state.language} currentUser={state.username} />)}
           {state.view === 'cooking' && state.selectedRecipe && (<CookingMode recipe={state.selectedRecipe} onClose={() => setState(prev => ({ ...prev, view: 'dashboard', selectedRecipe: null }))} language={state.language} />)}
           {state.isLoggedIn && state.view !== 'upload' && !state.showChat && (<button onClick={() => setState(prev => ({ ...prev, showChat: true }))} className="fixed bottom-6 right-6 z-40 bg-orange-600 text-white p-4 rounded-full shadow-2xl hover:bg-orange-700 transition-all transform hover:scale-110"><IconChat className="w-6 h-6" /></button>)}
           {state.showChat && (<ChatBot history={state.chatHistory} setHistory={(h) => setState(prev => ({ ...prev, chatHistory: h }))} contextRecipes={state.recipes} onClose={() => setState(prev => ({ ...prev, showChat: false }))} />)}

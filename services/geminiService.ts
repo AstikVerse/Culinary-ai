@@ -1,13 +1,7 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { Recipe, Language, Cuisine, MealType, ChatMessage } from "../types";
 
-// Utility to extract JSON from potentially markdown-wrapped strings (e.g., ```json ... ```)
-const cleanJsonString = (str: string): string => {
-  const jsonMatch = str.match(/\[[\s\S]*\]/); // We expect an array for recipes
-  return jsonMatch ? jsonMatch[0] : str;
-};
-
+// Helper function to prepare file for Gemini API
 export const fileToGenerativePart = async (file: File): Promise<{ mimeType: string; data: string }> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -22,6 +16,7 @@ export const fileToGenerativePart = async (file: File): Promise<{ mimeType: stri
   });
 };
 
+// Analyze image and suggest recipes using structured JSON response
 export const analyzeFridgeImage = async (
   base64Image: string,
   mimeType: string,
@@ -33,8 +28,8 @@ export const analyzeFridgeImage = async (
   // Always initialize GoogleGenAI right before making the API call to ensure use of the correct environment key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  // Use gemini-3-flash-preview for high performance and reliable structured JSON extraction.
-  const model = "gemini-3-flash-preview";
+  // Use gemini-3-pro-preview for complex multimodal analysis and high-quality reasoning tasks.
+  const model = "gemini-3-pro-preview";
 
   const systemInstruction = `You are a professional culinary AI assistant.
     Context:
@@ -52,7 +47,7 @@ export const analyzeFridgeImage = async (
     3. STRICTLY respect these dietary filters: ${dietaryPreferences.join(', ')}.
     4. Provide clear, step-by-step instructions in ${language}.
     
-    Return the result as a valid JSON array of recipe objects. Do not include any text, markdown, or commentary outside the JSON array.
+    Return the result as a valid JSON array of recipe objects.
   `;
 
   try {
@@ -116,10 +111,11 @@ export const analyzeFridgeImage = async (
       }
     });
 
+    // Access the text property directly as recommended.
     const resultText = response.text;
     if (resultText) {
-      const cleanedJson = cleanJsonString(resultText);
-      const recipes = JSON.parse(cleanedJson) as Recipe[];
+      // Directly parse the trimmed JSON response as recommended in the guidelines
+      const recipes = JSON.parse(resultText.trim()) as Recipe[];
       return recipes.map((r, idx) => ({ 
         ...r, 
         id: r.id || `recipe-${idx}-${Date.now()}`,
@@ -136,6 +132,7 @@ export const analyzeFridgeImage = async (
   }
 };
 
+// Chat with the AI Chef using the chat interface
 export const chatWithChef = async (
   history: ChatMessage[],
   userMessage: string,
@@ -143,7 +140,8 @@ export const chatWithChef = async (
 ): Promise<string> => {
   // Always initialize GoogleGenAI right before making the API call.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = "gemini-3-flash-preview";
+  // Use gemini-3-pro-preview for complex reasoning and professional conversational tasks.
+  const model = "gemini-3-pro-preview";
   
   const recipeContext = contextRecipes.length > 0 
     ? `The user is currently considering these recipes: ${contextRecipes.map(r => r.title).join(', ')}.`
@@ -155,21 +153,21 @@ export const chatWithChef = async (
     Keep your tone professional yet accessible.`;
 
   try {
-     const response = await ai.models.generateContent({
-      model: model,
-      contents: [
-        ...history.map(msg => ({
-          role: msg.role === 'model' ? 'model' : 'user',
-          parts: [{ text: msg.text }]
-        })),
-        { role: 'user', parts: [{ text: userMessage }] }
-      ],
-      config: {
-        systemInstruction
-      }
-    });
-    
-    return response.text || "I'm here to help with your cooking journey!";
+     // Use the recommended Chat API for conversational tasks
+     const chat = ai.chats.create({
+       model: model,
+       config: {
+         systemInstruction,
+       },
+       history: history.map(msg => ({
+         role: msg.role === 'model' ? 'model' : 'user',
+         parts: [{ text: msg.text }]
+       }))
+     });
+
+     const response = await chat.sendMessage({ message: userMessage });
+     // Access the text property directly as recommended.
+     return response.text || "I'm here to help with your cooking journey!";
   } catch (error) {
     console.error("Chat Failed:", error);
     return "I'm having a little trouble in the kitchen right now. Let's try again in a moment!";
