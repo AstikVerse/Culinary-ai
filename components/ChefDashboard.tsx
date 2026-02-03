@@ -178,16 +178,18 @@ export const ChefDashboard: React.FC<ChefDashboardProps> = ({
                                         <td className="px-8 py-5 font-mono text-amber-400 font-bold">#{b.id}</td>
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] font-black">{b.clientName[0]}</div>
+                                                <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] font-black">
+                                                    {b.clientName?.charAt(0) || 'G'}
+                                                </div>
                                                 <div>
-                                                    <p className="font-black text-white">{b.clientName}</p>
+                                                    <p className="font-black text-white">{b.clientName || 'Guest User'}</p>
                                                     <p className="text-[9px] text-slate-500 font-bold">{b.location}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 text-slate-400 font-bold">{b.date}</td>
                                         <td className="px-8 py-5">
-                                            <p className="font-black text-white">₹{b.totalPayout.toLocaleString()}</p>
+                                            <p className="font-black text-white">₹{b.totalPayout?.toLocaleString() || '0'}</p>
                                             <p className="text-[8px] text-emerald-400 font-bold uppercase tracking-widest">Net Payable</p>
                                         </td>
                                         <td className="px-8 py-5">

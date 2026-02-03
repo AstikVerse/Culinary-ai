@@ -1,6 +1,61 @@
 
 import React from 'react';
 
+export const StickerMascot = ({ className = "w-24 h-24" }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+    {/* Blue Outer Circle */}
+    <circle cx="50" cy="50" r="48" fill="#007bff" />
+    
+    {/* Text around the circle */}
+    <defs>
+      <path id="circlePath" d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" />
+    </defs>
+    <text fill="white" fontSize="9.5" fontWeight="black" fontFamily="Inter, sans-serif" letterSpacing="1">
+      <textPath href="#circlePath">
+        RATE THE AI CHEF • GIVE FEEDBACK • RATE THE AI CHEF • 
+      </textPath>
+    </text>
+
+    {/* White Inner Circle */}
+    <circle cx="50" cy="50" r="32" fill="white" />
+
+    {/* Lady Chef Character Illustration */}
+    <g transform="translate(22, 22) scale(0.6)">
+        {/* Hair */}
+        <path d="M46.5 12C28.5 12 18 24 18 42C18 48 21 54 24 57L21 75H72L69 57C72 54 75 48 75 42C75 24 64.5 12 46.5 12Z" fill="#333" />
+        <circle cx="46.5" cy="10" r="10" fill="#333" />
+        
+        {/* Face */}
+        <path d="M28 42C28 54 36.5 63 46.5 63C56.5 63 65 54 65 42C65 30 56.5 24 46.5 24C36.5 24 28 30 28 42Z" fill="#FFDBAC" />
+        
+        {/* Features */}
+        <circle cx="40" cy="40" r="3" fill="#333" />
+        <circle cx="53" cy="40" r="3" fill="#333" />
+        <path d="M42 52C42 52 44 56 46.5 56C49 56 51 52 51 52" stroke="#E57373" strokeWidth="2" strokeLinecap="round" fill="none" />
+        
+        {/* Body/Saree Style */}
+        <path d="M21 75C21 75 15 85 15 95V105H78V95C78 85 72 75 72 75H21Z" fill="#007bff" />
+        <path d="M30 75L60 105" stroke="white" strokeWidth="8" strokeOpacity="0.2" />
+        
+        {/* Logo on dress */}
+        <circle cx="65" cy="85" r="5" fill="white" />
+        <circle cx="65" cy="85" r="3" fill="#007bff" />
+    </g>
+  </svg>
+);
+
+export const IconLadyChef = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <circle cx="12" cy="8" r="5" fill="currentColor" fillOpacity="0.2"/>
+    <path d="M12 13C15.3137 13 18 15.6863 18 19V21H6V19C6 15.6863 8.68629 13 12 13Z" fill="currentColor" fillOpacity="0.2"/>
+    <path d="M12 2C8.68629 2 6 4.68629 6 8C6 11.3137 8.68629 14 12 14C15.3137 14 18 11.3137 18 8C18 4.68629 15.3137 2 12 2ZM12 12C9.79086 12 8 10.2091 8 8C8 5.79086 9.79086 4 12 4C14.2091 4 16 5.79086 16 8C16 10.2091 14.2091 12 12 12Z" fill="currentColor"/>
+    <path d="M7 19C7 16.2386 9.23858 14 12 14C14.7614 14 17 16.2386 17 19V21H7V19Z" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M9 4C9 2.5 10.5 1 12 1C13.5 1 15 2.5 15 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="10" cy="8" r="0.5" fill="currentColor"/>
+    <circle cx="14" cy="8" r="0.5" fill="currentColor"/>
+  </svg>
+);
+
 export const IconCamera = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />

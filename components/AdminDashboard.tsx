@@ -27,7 +27,7 @@ interface AdminDashboardProps {
   onUpdateSettings: (settings: AppSettings) => void;
 }
 
-type AdminSection = 'dashboard' | 'users' | 'chefs' | 'orders' | 'payments' | 'analytics' | 'settings';
+type AdminSection = 'dashboard' | 'users' | 'chefs' | 'orders' | 'payments' | 'analytics' | 'settings' | 'pending-chefs';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ 
   applications, 
@@ -48,9 +48,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const [activeSection, setActiveSection] = useState<AdminSection>('dashboard');
   const [saveNote, setSaveNote] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const totalRevenue = transactions.reduce((acc, curr) => acc + (curr.amount > 0 ? curr.amount : 0), 0);
+  const totalRevenue = transactions.reduce((acc, curr) => acc + ((curr.amount || 0) > 0 ? curr.amount : 0), 0);
   
   const updateSetting = (key: keyof AppSettings, val: any) => {
     onUpdateSettings({ ...settings, [key]: val });
@@ -96,11 +95,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto custom-scrollbar">
             {[
                 { id: 'dashboard', label: 'Command Deck', icon: IconDashboard },
+                { id: 'pending-chefs', label: 'Chef Apps', icon: IconClock },
                 { id: 'users', label: 'User Registry', icon: IconUsers },
                 { id: 'chefs', label: 'Chef Partners', icon: IconGlobe },
                 { id: 'orders', label: 'Service Logs', icon: IconCalendar },
                 { id: 'payments', label: 'Finance Hub', icon: IconWallet },
-                { id: 'analytics', label: 'Data Lab', icon: IconBarChart },
                 { id: 'settings', label: 'Global Prefs', icon: IconSettings },
             ].map((item) => (
                 <button
@@ -127,17 +126,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0">
             <div>
                 <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">{activeSection.replace('-', ' ')}</h2>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CULINARYAI NODE: AP-SOUTH-1</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">SYSTEM: AP-SOUTH-1-ALPHA</p>
             </div>
             
             <div className="flex items-center gap-4">
                 {saveNote && <span className="text-orange-600 font-black text-[9px] uppercase animate-pulse">{saveNote}</span>}
                 <div className="text-right">
-                    <p className="text-xs font-black text-slate-900">Admin Instance</p>
-                    <p className="text-[9px] font-bold text-emerald-500 uppercase">STATUS: ELEVATED</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200 text-slate-400">
-                    <IconUsers className="w-5 h-5" />
+                    <p className="text-xs font-black text-slate-900">Admin Privileges</p>
+                    <p className="text-[9px] font-bold text-emerald-500 uppercase">STATUS: ACTIVE</p>
                 </div>
             </div>
         </header>
@@ -148,9 +144,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {[
                             { label: 'Revenue', val: `₹${totalRevenue.toLocaleString()}`, icon: IconRupee, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                            { label: 'Users', val: users.length, icon: IconUsers, color: 'text-blue-600', bg: 'bg-blue-50' },
-                            { label: 'Chefs', val: approvedChefs.length, icon: IconChefHat, color: 'text-orange-600', bg: 'bg-orange-50' },
-                            { label: 'Orders', val: bookings.length, icon: IconCalendar, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                            { label: 'Pending Apps', val: applications.filter(a => a.status === 'pending').length, icon: IconClock, color: 'text-amber-600', bg: 'bg-amber-50' },
+                            { label: 'Active Chefs', val: approvedChefs.length, icon: IconChefHat, color: 'text-orange-600', bg: 'bg-orange-50' },
+                            { label: 'Active Orders', val: bookings.length, icon: IconCalendar, color: 'text-indigo-600', bg: 'bg-indigo-50' },
                         ].map((s, i) => (
                             <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-36">
                                 <div className={`p-2 rounded-lg ${s.bg} ${s.color} w-fit`}><s.icon className="w-5 h-5" /></div>
@@ -164,111 +160,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
             )}
 
-            {activeSection === 'orders' && (
-                <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in">
+            {activeSection === 'pending-chefs' && (
+                <div className="max-w-7xl mx-auto space-y-6 animate-in slide-in-from-right-4">
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                            <h3 className="text-sm font-black text-slate-900 uppercase">Master Service Log</h3>
-                            <div className="relative">
-                                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                                <input type="text" placeholder="Filter logs..." className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-orange-500" />
-                            </div>
+                        <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                            <h3 className="text-sm font-black text-slate-900 uppercase">Chef Candidate Review</h3>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">
-                                        <th className="px-6 py-4">Ref ID</th>
-                                        <th className="px-6 py-4">Client / Chef</th>
-                                        <th className="px-6 py-4">Service Date</th>
-                                        <th className="px-6 py-4">Payout</th>
-                                        <th className="px-6 py-4">Status</th>
-                                        <th className="px-6 py-4 text-right">Actions</th>
+                                        <th className="px-6 py-4">Candidate</th>
+                                        <th className="px-6 py-4">Specialty</th>
+                                        <th className="px-6 py-4">Experience</th>
+                                        <th className="px-6 py-4">Applied On</th>
+                                        <th className="px-6 py-4 text-right">Decision</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {bookings.map(b => (
-                                        <tr key={b.id} className="text-xs hover:bg-slate-50 transition-colors">
-                                            <td className="px-6 py-4 font-black text-slate-900">{b.id}</td>
-                                            <td className="px-6 py-4">
-                                                <p className="font-bold">{b.clientName}</p>
-                                                <p className="text-[10px] text-stone-400">{b.chefName}</p>
+                                    {applications.filter(a => a.status === 'pending').map(app => (
+                                        <tr key={app.id} className="text-xs hover:bg-slate-50 transition-colors">
+                                            <td className="px-6 py-5">
+                                                <p className="font-black text-slate-900">{app.firstName} {app.lastName}</p>
+                                                <p className="text-[10px] text-slate-500">{app.email}</p>
                                             </td>
-                                            <td className="px-6 py-4 text-slate-500">{b.date}</td>
-                                            <td className="px-6 py-4 font-bold">₹{b.totalPayout.toLocaleString()}</td>
-                                            <td className="px-6 py-4"><StatusBadge status={b.status} /></td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button className="text-slate-400 hover:text-orange-500 p-1.5 rounded-md hover:bg-orange-50"><IconExternalLink className="w-4 h-4"/></button>
+                                            <td className="px-6 py-5 font-bold">{app.specialty}</td>
+                                            <td className="px-6 py-5 font-bold">{app.yearsExperience} Years</td>
+                                            <td className="px-6 py-5 text-slate-500 font-medium">{app.appliedDate}</td>
+                                            <td className="px-6 py-5 text-right flex justify-end gap-2">
+                                                <button onClick={() => onReject(app.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all"><IconCross className="w-4 h-4"/></button>
+                                                <button onClick={() => onApprove(app)} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"><IconCheck className="w-4 h-4"/></button>
                                             </td>
                                         </tr>
                                     ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeSection === 'payments' && (
-                <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-[#0f172a] text-white p-8 rounded-xl shadow-xl flex flex-col justify-between h-56 relative overflow-hidden">
-                            <div className="relative z-10">
-                                <p className="text-slate-400 font-black text-[9px] uppercase tracking-widest mb-2">Platform Liquidity</p>
-                                <h3 className="text-4xl font-black text-white tracking-tighter">₹{(totalRevenue * 0.85).toLocaleString()}</h3>
-                                <p className="text-[10px] text-emerald-400 mt-2 font-bold uppercase tracking-widest">Available for Settlement</p>
-                            </div>
-                            <button className="relative z-10 bg-orange-600 text-white py-3 rounded-lg font-black uppercase text-[10px] tracking-widest hover:bg-orange-700 transition-all shadow-lg">Run Disbursement Protocol</button>
-                            <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                        </div>
-                        <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-56">
-                            <div>
-                                <p className="text-slate-400 font-black text-[9px] uppercase tracking-widest mb-1">Accumulated Commission (10%)</p>
-                                <p className="text-3xl font-black text-slate-900">₹{(totalRevenue * 0.1).toLocaleString()}</p>
-                            </div>
-                            <div className="flex gap-2">
-                                <div className="flex-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Affiliate Rev</p>
-                                    <p className="text-sm font-black">₹{Math.floor(totalRevenue * 0.05).toLocaleString()}</p>
-                                </div>
-                                <div className="flex-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Service Rev</p>
-                                    <p className="text-sm font-black">₹{Math.floor(totalRevenue * 0.1).toLocaleString()}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                            <h3 className="text-sm font-black text-slate-900 uppercase">Payment Ledger</h3>
-                            <button className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase hover:text-slate-900 transition-all">
-                                <IconDownload className="w-3.5 h-3.5" /> Export CSV
-                            </button>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">
-                                        <th className="px-6 py-4">Transaction ID</th>
-                                        <th className="px-6 py-4">Type</th>
-                                        <th className="px-6 py-4">Involved Party</th>
-                                        <th className="px-6 py-4">Net Amount</th>
-                                        <th className="px-6 py-4 text-right">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {transactions.map(txn => (
-                                        <tr key={txn.id} className="text-xs hover:bg-slate-50 transition-colors">
-                                            <td className="px-6 py-4 font-mono font-bold text-slate-500">{txn.id}</td>
-                                            <td className="px-6 py-4 font-black">{txn.type}</td>
-                                            <td className="px-6 py-4 text-slate-500">{txn.party}</td>
-                                            <td className={`px-6 py-4 font-black ${txn.amount > 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
-                                                {txn.amount > 0 ? '+' : '-'}₹{Math.abs(txn.amount).toLocaleString()}
-                                            </td>
-                                            <td className="px-6 py-4 text-right"><StatusBadge status={txn.status} /></td>
-                                        </tr>
-                                    ))}
+                                    {applications.filter(a => a.status === 'pending').length === 0 && (
+                                        <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No pending applications in queue</td></tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -281,22 +208,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div className="p-10 border-b border-slate-100 bg-slate-50/50">
                             <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Global Protocol</h3>
-                            <p className="text-xs font-bold text-slate-400 uppercase mt-1">Platform-wide engine constraints</p>
                         </div>
                         <div className="p-10 space-y-10">
                             <section className="space-y-6">
-                                <h4 className="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em]">Platform Identity</h4>
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <label className="text-[9px] font-black text-slate-400 uppercase">App Nomenclature</label>
-                                        <input type="text" value={settings.appName} onChange={(e) => updateSetting('appName', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-xs font-bold outline-none focus:border-orange-500" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[9px] font-black text-slate-400 uppercase">Maintenance Protocol</label>
-                                        <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg">
-                                            <span className="text-[10px] font-bold text-slate-700">ACTIVE</span>
-                                            <Toggle checked={settings.maintenanceMode} onChange={(v) => updateSetting('maintenanceMode', v)} />
+                                <h4 className="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em]">Security Protocol</h4>
+                                <div className="p-6 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-xs font-black text-slate-900">Enforce Manual Approval</p>
+                                            <p className="text-[10px] text-slate-500 font-bold mt-1">Users cannot self-assign 'Chef' role without admin verify.</p>
                                         </div>
+                                        <Toggle checked={!settings.autoApproveChefs} onChange={(v) => updateSetting('autoApproveChefs', !v)} />
                                     </div>
                                 </div>
                             </section>
@@ -308,13 +230,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         <label className="text-[9px] font-black text-slate-400 uppercase">Chef Commission (%)</label>
                                         <input type="number" value={settings.chefCommission} onChange={(e) => updateSetting('chefCommission', parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-xs font-bold outline-none" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[9px] font-black text-slate-400 uppercase">Default AI Node</label>
-                                        <select value={settings.modelName} onChange={(e) => updateSetting('modelName', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-xs font-bold outline-none">
-                                            <option value="gemini-3-flash-preview">Gemini 3 Flash</option>
-                                            <option value="gemini-3-pro-preview">Gemini 3 Pro</option>
-                                        </select>
-                                    </div>
                                 </div>
                             </section>
                         </div>
@@ -322,14 +237,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
             )}
             
-            {['users', 'chefs', 'analytics'].includes(activeSection) && (
+            {['users', 'chefs', 'orders', 'payments'].includes(activeSection) && activeSection !== 'orders' && (
                 <div className="h-full flex items-center justify-center animate-in fade-in py-20">
                     <div className="text-center max-w-sm">
                         <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
                             <IconActivity className="w-8 h-8 text-slate-300" />
                         </div>
-                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Module Initialization</h3>
-                        <p className="text-slate-400 text-sm mt-2 leading-relaxed font-medium">This section is being synchronized with the master database. Check back in v4.3 deployment cycle.</p>
+                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Module Locked</h3>
+                        <p className="text-slate-400 text-sm mt-2 leading-relaxed font-medium">This registry module is currently undergoing schema synchronization with the backend cluster. Use the Command Deck for overview statistics.</p>
+                        <button onClick={() => setActiveSection('dashboard')} className="mt-8 text-orange-600 font-black text-[10px] uppercase tracking-widest hover:underline">Return to Base</button>
                     </div>
                 </div>
             )}

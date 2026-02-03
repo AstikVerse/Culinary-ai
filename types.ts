@@ -37,45 +37,46 @@ export interface ChatMessage {
 export interface ChefProfile {
   id: string;
   name: string;
-  email: string; // Added for Admin
-  mobile: string; // Added for Admin
-  specialty: string;
+  email: string; 
+  mobile: string; 
+  speciality: string; 
   rating: number;
   reviews: number;
-  price: string;
+  price: number; 
   hourlyRate: number;
   image: string;
   badges: string[];
   joinedDate: string;
-  status: 'Active' | 'Suspended'; // Added for Admin control
+  status: 'Active' | 'Suspended';
 }
 
 export interface ChefApplication {
   id: string;
+  userId?: string; 
   firstName: string;
   lastName: string;
-  email: string; // simulated
+  email: string; 
   specialty: string;
   yearsExperience: number;
   status: 'pending' | 'approved' | 'rejected';
   appliedDate: string;
-  resumeData?: string; // Base64 string of the file
-  resumeName?: string; // Original filename
+  resumeData?: string; 
+  resumeName?: string; 
 }
 
 export interface ChefBookingRequest {
   id: string;
   clientName: string;
-  clientEmail?: string; // Added for Admin
-  chefName?: string; // Added for Admin
-  eventType?: string; // Added for Admin
+  clientEmail?: string; 
+  chefName?: string; 
+  eventType?: string; 
   date: string;
   hours: number;
   guests: number;
   totalPayout: number;
-  commission?: number; // Added for Admin
+  commission?: number; 
   status: 'pending' | 'confirmed' | 'completed' | 'declined' | 'cancelled';
-  paymentStatus?: 'Paid' | 'Pending' | 'Refunded' | 'Failed'; // Added for Admin
+  paymentStatus?: 'Paid' | 'Pending' | 'Refunded' | 'Failed'; 
   location: string;
 }
 
@@ -92,6 +93,7 @@ export interface User {
   diet: string[];
   lastActive: string;
   status: 'Active' | 'Blocked';
+  role: 'user' | 'admin' | 'chef';
 }
 
 export interface Transaction {
@@ -127,16 +129,12 @@ export interface AppSettings {
 
 export interface AppState {
   isLoggedIn: boolean;
-  userRole: 'user' | 'admin' | 'chef'; // NEW: Track who is logged in
+  userRole: 'user' | 'admin' | 'chef'; 
   username?: string;
+  userId?: string;
   showChat: boolean;
-  
-  // Views updated to include specific chef dashboard
   view: 'upload' | 'dashboard' | 'cooking' | 'shopping' | 'favorites' | 'chef-booking' | 'admin-dashboard' | 'chef-partner-dashboard';
-  
-  // Navigation for Chef Dashboard
   chefDashboardTab: 'dashboard' | 'bookings' | 'earnings' | 'profile' | 'availability' | 'settings';
-
   analyzing: boolean;
   recipes: Recipe[];
   favorites: Recipe[];
@@ -145,30 +143,29 @@ export interface AppState {
   dietaryFilters: string[]; 
   lastImage: string | null;
   lastImageMimeType: string | null;
-  
-  // Search
   searchQuery: string;
-
-  // Preferences
   language: Language;
   cuisine: Cuisine;
   mealType: MealType;
-  
-  // Chat
   chatHistory: ChatMessage[];
-
-  // Chef Platform Data
   chefs: ChefProfile[];
   chefApplications: ChefApplication[];
-  
-  // Admin & Chef Partner Data
   chefBookings: ChefBookingRequest[];
   users: User[];
   transactions: Transaction[];
   payouts: Payout[];
-  
-  // Global Settings
   appSettings: AppSettings;
+}
+
+export interface Feedback {
+    id?: string;
+    userId: string;
+    username: string;
+    rating: number;
+    accuracyScore: number;
+    comment: string;
+    timestamp: string;
+    scanId?: string;
 }
 
 export interface DietaryFilterOption {
