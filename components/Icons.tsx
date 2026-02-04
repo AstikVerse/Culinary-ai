@@ -14,7 +14,7 @@ export const IconMoon = ({ className = "w-6 h-6" }: { className?: string }) => (
 
 export const StickerMascot = ({ className = "w-24 h-24" }: { className?: string }) => (
   <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="48" fill="#007bff" />
+    <circle cx="50" cy="50" r="48" fill="#ea580c" />
     <defs>
       <path id="circlePath" d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" />
     </defs>
@@ -30,11 +30,11 @@ export const StickerMascot = ({ className = "w-24 h-24" }: { className?: string 
         <path d="M28 42C28 54 36.5 63 46.5 63C56.5 63 65 54 65 42C65 30 56.5 24 46.5 24C36.5 24 28 30 28 42Z" fill="#FFDBAC" />
         <circle cx="40" cy="40" r="3" fill="#333" />
         <circle cx="53" cy="40" r="3" fill="#333" />
-        <path d="M42 52C42 52 44 56 46.5 56C49 56 51 52 51 52" stroke="#E57373" strokeWidth="2" strokeLinecap="round" fill="none" />
-        <path d="M21 75C21 75 15 85 15 95V105H78V95C78 85 72 75 72 75H21Z" fill="#007bff" />
+        <path d="M42 52C42 52 44 56 46.5 56C49 56 51 52 51 52" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <path d="M21 75C21 75 15 85 15 95V105H78V95C78 85 72 75 72 75H21Z" fill="#ea580c" />
         <path d="M30 75L60 105" stroke="white" strokeWidth="8" strokeOpacity="0.2" />
         <circle cx="65" cy="85" r="5" fill="white" />
-        <circle cx="65" cy="85" r="3" fill="#007bff" />
+        <circle cx="65" cy="85" r="3" fill="#ea580c" />
     </g>
   </svg>
 );

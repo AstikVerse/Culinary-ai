@@ -469,13 +469,13 @@ function App() {
           <div className="fixed bottom-24 right-6 z-40 flex flex-col items-end gap-3 pointer-events-none group">
               <div className="relative animate-in slide-in-from-bottom-4 duration-500 pointer-events-auto">
                    <div className="bg-white dark:bg-[#1a1a1a] px-5 py-3 rounded-2xl shadow-2xl border border-stone-100 dark:border-white/5 flex items-center gap-3">
-                        <button onClick={() => setShowMascotTrigger(false)} className="bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600 transition-colors">
+                        <button onClick={() => setShowMascotTrigger(false)} className="bg-orange-500 text-white p-1 rounded-full hover:bg-orange-600 transition-colors shadow-lg">
                             <div className="w-3 h-0.5 bg-white"></div>
                         </button>
                         <div className="max-w-[150px]">
                             <p className="text-[10px] font-black uppercase text-stone-700 dark:text-stone-300 tracking-wider leading-tight">
                                 Hi, I'm CulinaryAI,<br/>
-                                <span className="text-blue-600">give feedback easily!</span>
+                                <span className="text-orange-600">give feedback easily!</span>
                             </p>
                         </div>
                    </div>
