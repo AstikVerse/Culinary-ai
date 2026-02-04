@@ -60,6 +60,7 @@ export const ChefBooking: React.FC<ChefBookingProps> = ({ chefs, onApply, langua
     setIsSubmitting(true);
     try {
         const total = calculateTotal(selectedChef.price);
+        // Ensure we write to the 'bookings' collection
         await addDoc(collection(db, 'bookings'), {
             chefId: selectedChef.id,
             chefName: selectedChef.name,
@@ -155,7 +156,7 @@ export const ChefBooking: React.FC<ChefBookingProps> = ({ chefs, onApply, langua
       {activeTab === 'browse' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
             {chefs.map((chef) => (
-            <div key={chef.id} className="bg-white dark:bg-[#1a1a1a] rounded-[2rem] overflow-hidden border border-stone-100 dark:border-white/5 shadow-xl hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.2)] transition-all group flex flex-col">
+            <div key={chef.id} className="bg-white dark:bg-[#1a1a1a] rounded-[2rem] overflow-hidden border border-stone-100 dark:border-white/5 shadow-xl hover:shadow-[0_40px_80px_-15_rgba(0,0,0,0.2)] transition-all group flex flex-col">
                 <div className="h-72 overflow-hidden relative">
                     <img src={chef.image} alt={chef.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute top-5 right-5 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl flex items-center gap-1.5 shadow-2xl">
@@ -184,7 +185,41 @@ export const ChefBooking: React.FC<ChefBookingProps> = ({ chefs, onApply, langua
         </div>
       )}
 
-      {/* Booking and Application Modals remain identical for logic, but with slight visual refinements to match the "Attractive" theme */}
+      {selectedChef && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm animate-in fade-in">
+              <div className="bg-white rounded-xl w-full max-w-sm shadow-2xl overflow-hidden relative animate-slide-up">
+                  <button onClick={resetModals} className="absolute top-4 right-4 text-stone-400 hover:text-stone-900 p-2"><IconClose className="w-5 h-5" /></button>
+                  {isBooked ? (
+                      <div className="p-10 text-center space-y-4">
+                          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                              <IconCheck className="w-8 h-8" />
+                          </div>
+                          <h3 className="text-xl font-black text-stone-900 uppercase">Confirmed!</h3>
+                          <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Your request has been queued with {selectedChef.name}.</p>
+                          <button onClick={resetModals} className="w-full bg-stone-900 text-white py-3 rounded-lg font-black text-[10px] uppercase mt-4 shadow-lg">Excellent</button>
+                      </div>
+                  ) : (
+                      <div className="p-8">
+                          <h3 className="text-xl font-black text-stone-900 mb-6 uppercase tracking-tight">Hire {selectedChef.name}</h3>
+                          <div className="space-y-4">
+                              <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Event Date</label>
+                                  <input type="date" value={bookingData.date} onChange={e => setBookingData(p => ({...p, date: e.target.value}))} className="w-full bg-stone-50 border border-stone-200 rounded-lg py-3 px-4 text-xs font-bold outline-none" />
+                              </div>
+                              <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Venue Location</label>
+                                  <input type="text" placeholder="Full Address" value={bookingData.location} onChange={e => setBookingData(p => ({...p, location: e.target.value}))} className="w-full bg-stone-50 border border-stone-200 rounded-lg py-3 px-4 text-xs font-bold outline-none" />
+                              </div>
+                              <button onClick={handleBook} disabled={isSubmitting} className="w-full bg-orange-600 text-white py-4 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all mt-4 shadow-xl hover:bg-orange-700">
+                                {isSubmitting ? 'Submitting...' : `Confirm • ₹${calculateTotal(selectedChef.price).toLocaleString()}`}
+                              </button>
+                          </div>
+                      </div>
+                  )}
+              </div>
+          </div>
+      )}
+
       {isApplicationOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-xl animate-in fade-in duration-300">
               <div className="bg-white dark:bg-[#1a1a1a] rounded-[2.5rem] w-full max-w-xl overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative animate-in zoom-in-95">
