@@ -1,8 +1,9 @@
-// Standard modular Firebase imports for v9+ SDK
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+// Fix: Use versioned CDN URLs to ensure consistent modular SDK imports and resolve module member errors
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
+// Replace these placeholders with your actual Firebase project configuration from the Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyC2mbFLTxsbVLAezIAmgDU0j9zaDEaQMvE",
   authDomain: "culinaryai-20d5b.firebaseapp.com",
@@ -13,7 +14,7 @@ const firebaseConfig = {
   measurementId: "G-KSRE8FRF7X"
 };
 
-// Initialize the Firebase instance using the modular approach
+// Initialize Firebase with the modular SDK
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);

@@ -107,73 +107,45 @@ export const ChefBooking: React.FC<ChefBookingProps> = ({ chefs, onApply, langua
 
   return (
     <div className="p-4 md:p-8 max-w-[1600px] mx-auto animate-slide-up pb-12">
-      {/* Cinematic Enhanced Hero Section */}
-      <div className="relative rounded-3xl overflow-hidden mb-12 shadow-2xl h-[400px] md:h-[500px]">
-          {/* Background Image */}
-          <div className="absolute inset-0">
-              <img 
-                src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80" 
-                alt="Chef Cooking"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-stone-900 via-stone-900/80 to-transparent"></div>
+      <div className="bg-stone-900/50 backdrop-blur-md rounded-2xl p-8 md:p-12 text-white mb-8 relative overflow-hidden shadow-xl border border-white/5">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="relative z-10 max-w-2xl">
+          <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/30 rounded-lg px-3 py-1.5 text-orange-300 text-xs font-bold uppercase tracking-wider mb-6">
+            <IconChefHat className="w-4 h-4" /><span>{t.premium_service}</span>
           </div>
-          
-          <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-16 max-w-3xl">
-              <div className="inline-flex items-center gap-2 bg-orange-600 border border-orange-500 rounded-full px-4 py-2 text-white text-[10px] font-black uppercase tracking-widest mb-6 w-fit animate-pulse">
-                <IconChefHat className="w-4 h-4" /><span>{t.premium_service}</span>
-              </div>
-              <h1 className="text-4xl md:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter">
-                {t.hero_title}
-              </h1>
-              <p className="text-stone-200 text-sm md:text-lg mb-10 leading-relaxed font-medium">
-                {t.hero_desc}
-              </p>
-              <div className="flex flex-wrap gap-4">
-                  <button 
-                    onClick={() => { setActiveTab('browse'); document.getElementById('chef-browser-target')?.scrollIntoView({ behavior: 'smooth' }); }} 
-                    className="bg-orange-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-orange-700 transition-all shadow-xl shadow-orange-600/20 transform hover:scale-105 active:scale-95 text-xs"
-                  >
-                    {t.find_chef}
-                  </button>
-                  <button 
-                    onClick={() => { setIsApplicationOpen(true); setAppStep('form'); }} 
-                    className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-white/20 transition-all text-xs"
-                  >
-                    {t.join_chef}
-                  </button>
-              </div>
+          <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-4 leading-none">{t.hero_title}</h1>
+          <p className="text-stone-300 text-sm md:text-base mb-8 leading-relaxed max-w-lg">{t.hero_desc}</p>
+          <div className="flex flex-wrap gap-3">
+              <button onClick={() => { setActiveTab('browse'); document.getElementById('chef-browser-target')?.scrollIntoView({ behavior: 'smooth' }); }} className="bg-white/90 text-stone-900 px-6 py-3 rounded-xl font-bold hover:bg-white transition-colors text-sm">{t.find_chef}</button>
+              <button onClick={() => { setIsApplicationOpen(true); setAppStep('form'); }} className="bg-stone-800/80 text-white border border-white/10 px-6 py-3 rounded-xl font-bold hover:bg-stone-700 transition-colors text-sm">{t.join_chef}</button>
           </div>
+        </div>
       </div>
 
       <div id="chef-browser-target" className="flex justify-center mb-10 scroll-mt-24">
-          <div className="bg-white p-1.5 rounded-2xl shadow-sm border border-stone-100 flex gap-1">
-             <button onClick={() => setActiveTab('browse')} className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === 'browse' ? 'bg-stone-900 text-white shadow-lg' : 'text-stone-400 hover:text-stone-800'}`}>{t.browse_chefs}</button>
-             <button onClick={() => setActiveTab('leaderboard')} className={`px-8 py-3 rounded-xl font-black flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest transition-all ${activeTab === 'leaderboard' ? 'bg-orange-500 text-white shadow-lg' : 'text-stone-400 hover:text-stone-800'}`}><IconTrophy className="w-4 h-4" /> {t.leaderboard}</button>
+          <div className="bg-white p-1 rounded-xl shadow-sm border border-stone-100 flex">
+             <button onClick={() => setActiveTab('browse')} className={`px-8 py-2.5 rounded-lg font-bold transition-all text-xs uppercase tracking-widest ${activeTab === 'browse' ? 'bg-stone-900 text-white' : 'text-stone-400 hover:text-stone-800'}`}>{t.browse_chefs}</button>
+             <button onClick={() => setActiveTab('leaderboard')} className={`px-8 py-2.5 rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-widest ${activeTab === 'leaderboard' ? 'bg-orange-500 text-white' : 'text-stone-400 hover:text-stone-800'}`}><IconTrophy className="w-3.5 h-3.5" /> {t.leaderboard}</button>
           </div>
       </div>
 
       {activeTab === 'browse' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12 animate-in fade-in duration-500">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
             {chefs.map((chef) => (
-            <div key={chef.id} className="bg-white rounded-2xl overflow-hidden border border-stone-100 shadow-lg hover:shadow-2xl transition-all group flex flex-col transform hover:-translate-y-2">
-                <div className="h-60 overflow-hidden relative">
-                    <img src={chef.image} alt={chef.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-md">
-                        <IconStar className="w-3.5 h-3.5 text-orange-400" fill="currentColor" />
-                        <span className="text-xs font-black text-stone-800">{chef.rating}</span>
+            <div key={chef.id} className="bg-white rounded-xl overflow-hidden border border-stone-100 shadow-md hover:shadow-xl transition-all group flex flex-col">
+                <div className="h-48 overflow-hidden relative">
+                    <img src={chef.image} alt={chef.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
+                        <IconStar className="w-3 h-3 text-orange-400" fill="currentColor" />
+                        <span className="text-[10px] font-bold text-stone-800">{chef.rating}</span>
                     </div>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-black text-stone-900 mb-1">{chef.name}</h3>
-                    <p className="text-[10px] text-orange-600 font-black uppercase tracking-widest mb-6">{chef.speciality}</p>
-                    
-                    <div className="mt-auto pt-6 border-t border-stone-50 flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Starts at</span>
-                            <span className="text-xl font-black text-stone-900">₹{(chef.price || 0).toLocaleString()}</span>
-                        </div>
-                        <button onClick={() => setSelectedChef(chef)} className="bg-stone-900 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg shadow-stone-900/10">{t.book_now}</button>
+                <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="text-lg font-black text-stone-800 mb-1">{chef.name}</h3>
+                    <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-4">{chef.speciality}</p>
+                    <div className="mt-auto pt-4 border-t border-stone-100 flex items-center justify-between">
+                        <span className="text-base font-black text-stone-900">₹{(chef.price || 0).toLocaleString()}</span>
+                        <button onClick={() => setSelectedChef(chef)} className="bg-stone-900 text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase tracking-widest hover:bg-orange-600 transition-all">{t.book_now}</button>
                     </div>
                 </div>
             </div>
@@ -181,9 +153,6 @@ export const ChefBooking: React.FC<ChefBookingProps> = ({ chefs, onApply, langua
         </div>
       )}
 
-      {/* Application and Booking Modals remain the same but use consistent styling */}
-      {/* ... (rest of the modal logic from the original file) */}
-      
       {/* Join as Chef Modal */}
       {isApplicationOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/70 backdrop-blur-md animate-in fade-in duration-300">

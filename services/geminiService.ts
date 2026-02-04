@@ -1,7 +1,15 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Recipe, Language, Cuisine, MealType, ChatMessage } from "../types";
 
-// Helper function to prepare file for Gemini API
+// Initialize the GoogleGenAI client with the API key from environment variables.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+// Utility to extract JSON from potentially markdown-wrapped strings
+const cleanJsonString = (str: string): string => {
+  const jsonMatch = str.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+  return jsonMatch ? jsonMatch[0] : str;
+};
+
 export const fileToGenerativePart = async (file: File): Promise<{ mimeType: string; data: string }> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -16,7 +24,6 @@ export const fileToGenerativePart = async (file: File): Promise<{ mimeType: stri
   });
 };
 
-// Analyze image and suggest recipes using structured JSON response
 export const analyzeFridgeImage = async (
   base64Image: string,
   mimeType: string,
@@ -25,10 +32,7 @@ export const analyzeFridgeImage = async (
   cuisine: Cuisine,
   mealType: MealType
 ): Promise<Recipe[]> => {
-  // Always initialize GoogleGenAI right before making the API call to ensure use of the correct environment key.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
-  // Use gemini-3-pro-preview for complex multimodal analysis and high-quality reasoning tasks.
+  // Use gemini-3-pro-preview for advanced reasoning and complex multimodal tasks.
   const model = "gemini-3-pro-preview";
 
   const systemInstruction = `You are a professional culinary AI assistant.
@@ -47,7 +51,7 @@ export const analyzeFridgeImage = async (
     3. STRICTLY respect these dietary filters: ${dietaryPreferences.join(', ')}.
     4. Provide clear, step-by-step instructions in ${language}.
     
-    Return the result as a valid JSON array of recipe objects.
+    Return the result as a JSON array of recipe objects. Do not include any text other than the JSON.
   `;
 
   try {
@@ -111,18 +115,19 @@ export const analyzeFridgeImage = async (
       }
     });
 
-    // Access the text property directly as recommended.
+    // Directly access .text property from GenerateContentResponse as per guidelines.
     const resultText = response.text;
     if (resultText) {
-      // Directly parse the trimmed JSON response as recommended in the guidelines
-      const recipes = JSON.parse(resultText.trim()) as Recipe[];
+      // Clean the string to ensure only the JSON part is parsed
+      const cleanedJson = cleanJsonString(resultText);
+      const recipes = JSON.parse(cleanedJson) as Recipe[];
       return recipes.map((r, idx) => ({ 
         ...r, 
         id: r.id || `recipe-${idx}-${Date.now()}`,
         dietaryTags: r.dietaryTags || [],
         calories: r.calories || 0,
-        chefsSecret: r.chefsSecret || "Chef's Tip: Use fresh ingredients for the best taste.",
-        beveragePairing: r.beveragePairing || { name: "Water", description: "The classic choice." }
+        chefsSecret: r.chefsSecret || "Chef's tip: Season with love!",
+        beveragePairing: r.beveragePairing || { name: "Water", description: "Stay hydrated!" }
       }));
     }
     return [];
@@ -132,15 +137,12 @@ export const analyzeFridgeImage = async (
   }
 };
 
-// Chat with the AI Chef using the chat interface
 export const chatWithChef = async (
   history: ChatMessage[],
   userMessage: string,
   contextRecipes: Recipe[]
 ): Promise<string> => {
-  // Always initialize GoogleGenAI right before making the API call.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  // Use gemini-3-pro-preview for complex reasoning and professional conversational tasks.
+  // Use gemini-3-pro-preview for complex reasoning in culinary assistance.
   const model = "gemini-3-pro-preview";
   
   const recipeContext = contextRecipes.length > 0 
@@ -153,21 +155,22 @@ export const chatWithChef = async (
     Keep your tone professional yet accessible.`;
 
   try {
-     // Use the recommended Chat API for conversational tasks
-     const chat = ai.chats.create({
-       model: model,
-       config: {
-         systemInstruction,
-       },
-       history: history.map(msg => ({
-         role: msg.role === 'model' ? 'model' : 'user',
-         parts: [{ text: msg.text }]
-       }))
-     });
-
-     const response = await chat.sendMessage({ message: userMessage });
-     // Access the text property directly as recommended.
-     return response.text || "I'm here to help with your cooking journey!";
+     const response = await ai.models.generateContent({
+      model: model,
+      contents: [
+        ...history.map(msg => ({
+          role: msg.role === 'model' ? 'model' : 'user',
+          parts: [{ text: msg.text }]
+        })),
+        { role: 'user', parts: [{ text: userMessage }] }
+      ],
+      config: {
+        systemInstruction
+      }
+    });
+    
+    // Access response.text property directly.
+    return response.text || "I'm here to help with your cooking journey!";
   } catch (error) {
     console.error("Chat Failed:", error);
     return "I'm having a little trouble in the kitchen right now. Let's try again in a moment!";
