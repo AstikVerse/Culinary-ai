@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const IconSun = ({ className = "w-6 h-6" }: { className?: string }) => (
@@ -14,7 +15,10 @@ export const IconMoon = ({ className = "w-6 h-6" }: { className?: string }) => (
 
 export const StickerMascot = ({ className = "w-24 h-24" }: { className?: string }) => (
   <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+    {/* Blue Outer Circle */}
     <circle cx="50" cy="50" r="48" fill="#007bff" />
+    
+    {/* Text around the circle */}
     <defs>
       <path id="circlePath" d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" />
     </defs>
@@ -23,16 +27,29 @@ export const StickerMascot = ({ className = "w-24 h-24" }: { className?: string 
         RATE THE AI CHEF • GIVE FEEDBACK • RATE THE AI CHEF • 
       </textPath>
     </text>
+
+    {/* White Inner Circle */}
     <circle cx="50" cy="50" r="32" fill="white" />
+
+    {/* Lady Chef Character Illustration */}
     <g transform="translate(22, 22) scale(0.6)">
+        {/* Hair */}
         <path d="M46.5 12C28.5 12 18 24 18 42C18 48 21 54 24 57L21 75H72L69 57C72 54 75 48 75 42C75 24 64.5 12 46.5 12Z" fill="#333" />
         <circle cx="46.5" cy="10" r="10" fill="#333" />
+        
+        {/* Face */}
         <path d="M28 42C28 54 36.5 63 46.5 63C56.5 63 65 54 65 42C65 30 56.5 24 46.5 24C36.5 24 28 30 28 42Z" fill="#FFDBAC" />
+        
+        {/* Features */}
         <circle cx="40" cy="40" r="3" fill="#333" />
         <circle cx="53" cy="40" r="3" fill="#333" />
         <path d="M42 52C42 52 44 56 46.5 56C49 56 51 52 51 52" stroke="#E57373" strokeWidth="2" strokeLinecap="round" fill="none" />
+        
+        {/* Body/Saree Style */}
         <path d="M21 75C21 75 15 85 15 95V105H78V95C78 85 72 75 72 75H21Z" fill="#007bff" />
         <path d="M30 75L60 105" stroke="white" strokeWidth="8" strokeOpacity="0.2" />
+        
+        {/* Logo on dress */}
         <circle cx="65" cy="85" r="5" fill="white" />
         <circle cx="65" cy="85" r="3" fill="#007bff" />
     </g>
@@ -71,19 +88,8 @@ export const IconBriefcase = ({ className = "w-6 h-6" }: { className?: string })
 );
 
 export const IconChefHat = ({ className = "w-6 h-6" }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className={className}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M4.5 12a7.5 7.5 0 0115 0v.75a2.25 2.25 0 01-2.25 2.25h-.75v3.75a1.5 1.5 0 01-1.5 1.5h-6a1.5 1.5 0 01-1.5-1.5V15h-.75A2.25 2.25 0 014.5 12.75V12z"
-    />
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
   </svg>
 );
 
@@ -174,7 +180,7 @@ export const IconYoutube = ({ className = "w-6 h-6" }: { className?: string }) =
 
 export const IconChat = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75h6.75m-6.75 3h4.5m-7.875 6.364A9 9 0 113.375 4.636a9.003 9.003 0 0117.25 4.114c0 2.41-.952 4.62-2.5 6.25L21 21l-6.364-3.886z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
   </svg>
 );
 

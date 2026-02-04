@@ -28,8 +28,8 @@ export const analyzeFridgeImage = async (
   // Always initialize GoogleGenAI right before making the API call to ensure use of the correct environment key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  // Use gemini-3-flash-preview for general text and multimodal tasks as per guidelines.
-  const model = "gemini-3-flash-preview";
+  // Use gemini-3-pro-preview for complex multimodal analysis and high-quality reasoning tasks.
+  const model = "gemini-3-pro-preview";
 
   const systemInstruction = `You are a professional culinary AI assistant.
     Context:
@@ -70,7 +70,7 @@ export const analyzeFridgeImage = async (
               id: { type: Type.STRING },
               title: { type: Type.STRING },
               description: { type: Type.STRING },
-              difficulty: { type: Type.STRING },
+              difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] },
               prepTime: { type: Type.STRING },
               calories: { type: Type.INTEGER },
               cuisine: { type: Type.STRING },
@@ -82,8 +82,7 @@ export const analyzeFridgeImage = async (
                   name: { type: Type.STRING },
                   description: { type: Type.STRING }
                 },
-                required: ["name", "description"],
-                propertyOrdering: ["name", "description"]
+                required: ["name", "description"]
               },
               dietaryTags: {
                 type: Type.ARRAY,
@@ -98,8 +97,7 @@ export const analyzeFridgeImage = async (
                     quantity: { type: Type.STRING },
                     isAvailable: { type: Type.BOOLEAN }
                   },
-                  required: ["name", "quantity", "isAvailable"],
-                  propertyOrdering: ["name", "quantity", "isAvailable"]
+                  required: ["name", "quantity", "isAvailable"]
                 }
               },
               instructions: {
@@ -107,14 +105,13 @@ export const analyzeFridgeImage = async (
                 items: { type: Type.STRING }
               }
             },
-            required: ["title", "description", "difficulty", "prepTime", "ingredients", "instructions"],
-            propertyOrdering: ["id", "title", "description", "difficulty", "prepTime", "calories", "cuisine", "youtubeQuery", "chefsSecret", "beveragePairing", "dietaryTags", "ingredients", "instructions"]
+            required: ["title", "description", "difficulty", "prepTime", "ingredients", "instructions"]
           }
         }
       }
     });
 
-    // Access the text property directly as recommended in the guidelines.
+    // Access the text property directly as recommended.
     const resultText = response.text;
     if (resultText) {
       // Directly parse the trimmed JSON response as recommended in the guidelines
@@ -141,10 +138,10 @@ export const chatWithChef = async (
   userMessage: string,
   contextRecipes: Recipe[]
 ): Promise<string> => {
-  // Always initialize GoogleGenAI right before making the API call to ensure the latest API key is used.
+  // Always initialize GoogleGenAI right before making the API call.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  // Use gemini-3-flash-preview for general conversational tasks as per guidelines.
-  const model = "gemini-3-flash-preview";
+  // Use gemini-3-pro-preview for complex reasoning and professional conversational tasks.
+  const model = "gemini-3-pro-preview";
   
   const recipeContext = contextRecipes.length > 0 
     ? `The user is currently considering these recipes: ${contextRecipes.map(r => r.title).join(', ')}.`
@@ -169,7 +166,7 @@ export const chatWithChef = async (
      });
 
      const response = await chat.sendMessage({ message: userMessage });
-     // Access the text property directly as recommended in the guidelines.
+     // Access the text property directly as recommended.
      return response.text || "I'm here to help with your cooking journey!";
   } catch (error) {
     console.error("Chat Failed:", error);

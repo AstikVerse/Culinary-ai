@@ -14,7 +14,6 @@ const firebaseConfig = {
 };
 
 // Initialize the Firebase instance using the modular approach
-// Fixed: Using the correct modular import for initializeApp from 'firebase/app'
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
