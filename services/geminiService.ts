@@ -1,15 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Recipe, Language, Cuisine, MealType, ChatMessage } from "../types";
 
-// Initialize the GoogleGenAI client with the API key from environment variables.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
-// Utility to extract JSON from potentially markdown-wrapped strings
-const cleanJsonString = (str: string): string => {
-  const jsonMatch = str.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-  return jsonMatch ? jsonMatch[0] : str;
-};
-
 export const fileToGenerativePart = async (file: File): Promise<{ mimeType: string; data: string }> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -32,8 +23,9 @@ export const analyzeFridgeImage = async (
   cuisine: Cuisine,
   mealType: MealType
 ): Promise<Recipe[]> => {
-  // Use gemini-3-pro-preview for advanced reasoning and complex multimodal tasks.
-  const model = "gemini-3-pro-preview";
+  // Initialize right before call to ensure environment variables are loaded
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const model = "gemini-3-flash-preview";
 
   const systemInstruction = `You are a professional culinary AI assistant.
     Context:
@@ -44,14 +36,12 @@ export const analyzeFridgeImage = async (
 
   const prompt = `
     Analyze this image of a refrigerator or food ingredients.
-    
     TASKS:
     1. Identify all visible ingredients.
     2. Suggest 4-6 creative recipes based on these ingredients and the ${cuisine} cuisine style.
     3. STRICTLY respect these dietary filters: ${dietaryPreferences.join(', ')}.
     4. Provide clear, step-by-step instructions in ${language}.
-    
-    Return the result as a JSON array of recipe objects. Do not include any text other than the JSON.
+    Return the result as a valid JSON array of recipe objects.
   `;
 
   try {
@@ -74,7 +64,7 @@ export const analyzeFridgeImage = async (
               id: { type: Type.STRING },
               title: { type: Type.STRING },
               description: { type: Type.STRING },
-              difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] },
+              difficulty: { type: Type.STRING },
               prepTime: { type: Type.STRING },
               calories: { type: Type.INTEGER },
               cuisine: { type: Type.STRING },
@@ -115,19 +105,16 @@ export const analyzeFridgeImage = async (
       }
     });
 
-    // Directly access .text property from GenerateContentResponse as per guidelines.
     const resultText = response.text;
     if (resultText) {
-      // Clean the string to ensure only the JSON part is parsed
-      const cleanedJson = cleanJsonString(resultText);
-      const recipes = JSON.parse(cleanedJson) as Recipe[];
+      const recipes = JSON.parse(resultText.trim()) as Recipe[];
       return recipes.map((r, idx) => ({ 
         ...r, 
         id: r.id || `recipe-${idx}-${Date.now()}`,
         dietaryTags: r.dietaryTags || [],
         calories: r.calories || 0,
-        chefsSecret: r.chefsSecret || "Chef's tip: Season with love!",
-        beveragePairing: r.beveragePairing || { name: "Water", description: "Stay hydrated!" }
+        chefsSecret: r.chefsSecret || "Chef's tip: Prep with precision for perfect results.",
+        beveragePairing: r.beveragePairing || { name: "Water", description: "Clean and refreshing." }
       }));
     }
     return [];
@@ -142,7 +129,7 @@ export const chatWithChef = async (
   userMessage: string,
   contextRecipes: Recipe[]
 ): Promise<string> => {
-  // Use gemini-3-pro-preview for complex reasoning in culinary assistance.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const model = "gemini-3-pro-preview";
   
   const recipeContext = contextRecipes.length > 0 
@@ -169,7 +156,6 @@ export const chatWithChef = async (
       }
     });
     
-    // Access response.text property directly.
     return response.text || "I'm here to help with your cooking journey!";
   } catch (error) {
     console.error("Chat Failed:", error);

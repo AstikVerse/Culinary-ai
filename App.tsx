@@ -12,17 +12,9 @@ import { FeedbackModal } from './components/FeedbackModal';
 import { IconCamera, IconShoppingList, IconChefHat, IconUpload, IconGlobe, IconMap, IconUtensils, IconCheck, IconChat, IconClose, IconLogout, IconStar, IconVideo, IconBriefcase, IconCart, IconExternalLink, IconMenu, IconSearch, IconUser, IconDashboard, IconCalendar, IconWallet, IconSettings, IconClock, IconFilter, IconRefresh, IconLadyChef, StickerMascot } from './components/Icons';
 import { translations } from './utils/translations';
 
-// Live Database Imports using direct CDN paths to ensure modular SDK compatibility
 import { db, auth } from './lib/firebase';
-import { collection, onSnapshot, doc, updateDoc, addDoc, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-import { onAuthStateChanged } from "firebase/auth";
-import {
-  collection,
-  onSnapshot,
-  QuerySnapshot,
-  DocumentData
-} from "firebase/firestore";
-
+import { collection, onSnapshot, doc, updateDoc, addDoc, query, where, setDoc, getDoc, QuerySnapshot, DocumentSnapshot, DocumentData } from 'firebase/firestore';
+import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 
 function App() {
   const [state, setState] = useState<AppState>({
@@ -53,7 +45,6 @@ function App() {
     appSettings: {
         appName: 'CulinaryAI',
         maintenanceMode: false,
-        // Update to gemini-3-pro-preview as default for complex culinary tasks.
         modelName: 'gemini-3-pro-preview',
         temperature: 0.7,
         maxTokens: 2048,
@@ -79,11 +70,9 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // 1. LIVE AUTH LISTENER + ROLE FETCHER
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user: FirebaseUser | null) => {
       if (user) {
-        // Fetch role from Firestore
         const userRef = doc(db, 'users', user.uid);
         const userSnap = await getDoc(userRef);
         let role: 'user' | 'admin' | 'chef' = 'user';
@@ -107,34 +96,33 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // 2. LIVE DATABASE LISTENERS
   useEffect(() => {
-    const unsubChefs = onSnapshot(collection(db, 'chefs'), (snapshot) => {
+    const unsubChefs = onSnapshot(collection(db, 'chefs'), (snapshot: QuerySnapshot<DocumentData>) => {
       const chefs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ChefProfile));
       setState(prev => ({ ...prev, chefs }));
     });
 
-    const unsubBookings = onSnapshot(collection(db, 'bookings'), (snapshot) => {
+    const unsubBookings = onSnapshot(collection(db, 'bookings'), (snapshot: QuerySnapshot<DocumentData>) => {
       const bookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ChefBookingRequest));
       setState(prev => ({ ...prev, chefBookings: bookings }));
     });
 
-    const unsubUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
+    const unsubUsers = onSnapshot(collection(db, 'users'), (snapshot: QuerySnapshot<DocumentData>) => {
       const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
       setState(prev => ({ ...prev, users }));
     });
 
-    const unsubTx = onSnapshot(collection(db, 'transactions'), (snapshot) => {
+    const unsubTx = onSnapshot(collection(db, 'transactions'), (snapshot: QuerySnapshot<DocumentData>) => {
         const transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
         setState(prev => ({ ...prev, transactions }));
     });
 
-    const unsubApps = onSnapshot(collection(db, 'applications'), (snapshot) => {
+    const unsubApps = onSnapshot(collection(db, 'applications'), (snapshot: QuerySnapshot<DocumentData>) => {
         const apps = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ChefApplication));
         setState(prev => ({ ...prev, chefApplications: apps }));
     });
 
-    const unsubSettings = onSnapshot(doc(db, 'settings', 'global'), (doc) => {
+    const unsubSettings = onSnapshot(doc(db, 'settings', 'global'), (doc: DocumentSnapshot<DocumentData>) => {
         if (doc.exists()) {
             setState(prev => ({ ...prev, appSettings: doc.data() as AppSettings }));
         }
@@ -175,7 +163,6 @@ function App() {
         );
         setState(prev => ({ ...prev, recipes, analyzing: false }));
         
-        // Show the Mascot Trigger after successful analysis
         setTimeout(() => setShowMascotTrigger(true), 2500);
 
         if (state.isLoggedIn && state.username) {
@@ -478,13 +465,10 @@ function App() {
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onLogin={handleLogin} initialLanguage={state.language} />
       <FeedbackModal isOpen={showFeedbackModal} onClose={() => { setShowFeedbackModal(false); setShowMascotTrigger(false); }} userId={state.userId || 'guest'} username={state.username || 'Guest'} />
       
-      {/* AskDisha Styled Mascot Feedback Trigger */}
       {showMascotTrigger && (
           <div className="fixed bottom-24 right-6 z-40 flex flex-col items-end gap-3 pointer-events-none group">
-              {/* Speech Bubble Section */}
               <div className="relative animate-in slide-in-from-bottom-4 duration-500 pointer-events-auto">
                    <div className="bg-white px-5 py-3 rounded-2xl shadow-2xl border border-stone-100 flex items-center gap-3">
-                        {/* Close button inside bubble like in user image */}
                         <button onClick={() => setShowMascotTrigger(false)} className="bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600 transition-colors">
                             <div className="w-3 h-0.5 bg-white"></div>
                         </button>
@@ -495,11 +479,9 @@ function App() {
                             </p>
                         </div>
                    </div>
-                   {/* Speech bubble tail */}
                    <div className="absolute -bottom-2 right-8 w-4 h-4 bg-white border-b border-r border-stone-100 rotate-45"></div>
               </div>
 
-              {/* Sticker Button */}
               <button 
                 onClick={() => setShowFeedbackModal(true)}
                 className="pointer-events-auto transform hover:scale-105 active:scale-95 transition-all animate-in fade-in zoom-in duration-700 delay-300"

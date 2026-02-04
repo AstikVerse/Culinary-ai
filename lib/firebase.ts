@@ -1,18 +1,17 @@
-// lib/firebase.ts
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyC2mbFLTxsbVLAezIAmgDU0j9zaDEaQMvE",
+  authDomain: "culinaryai-20d5b.firebaseapp.com",
+  projectId: "culinaryai-20d5b",
+  storageBucket: "culinaryai-20d5b.firebasestorage.app",
+  messagingSenderId: "269198070372",
+  appId: "1:269198070372:web:8e5a369f615bb8405e0571",
+  measurementId: "G-KSRE8FRF7X"
 };
 
 const app = initializeApp(firebaseConfig);
-
-export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
