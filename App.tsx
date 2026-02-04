@@ -15,7 +15,14 @@ import { translations } from './utils/translations';
 // Live Database Imports using direct CDN paths to ensure modular SDK compatibility
 import { db, auth } from './lib/firebase';
 import { collection, onSnapshot, doc, updateDoc, addDoc, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  collection,
+  onSnapshot,
+  QuerySnapshot,
+  DocumentData
+} from "firebase/firestore";
+
 
 function App() {
   const [state, setState] = useState<AppState>({
