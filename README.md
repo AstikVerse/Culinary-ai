@@ -1,20 +1,5 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+🍽️ CulinaryAI
 
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/drive/139_wIyoW_x9FD_GNwuCHWlh5_mSE5erS
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+CulinaryAI is an AI-powered food intelligence and chef marketplace platform that helps users transform available ingredients into practical cooking solutions. Users can upload images of their fridge or ingredients to receive personalized recipe suggestions, identify missing items, and optionally book verified professional chefs for home cooking or events.
+The platform is built as a multi-role system with dedicated User, Chef, and Admin portals. It integrates AI-based ingredient analysis, recipe generation, chef booking workflows, and admin-controlled configuration such as commissions, AI settings, and platform management.
+CulinaryAI demonstrates real-world product engineering by combining AI integration, role-based access control, marketplace logic, and scalable backend design into a single cohesive application.
