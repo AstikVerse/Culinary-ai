@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import { Recipe, Language, Cuisine, MealType, ChatMessage } from "../types";
 
 // Helper function to prepare file for Gemini API
@@ -28,8 +28,8 @@ export const analyzeFridgeImage = async (
   // Always initialize GoogleGenAI right before making the API call to ensure use of the correct environment key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  // Use gemini-3-pro-preview for complex multimodal analysis and high-quality reasoning tasks.
-  const model = "gemini-3-pro-preview";
+  // Use gemini-3-flash-preview for general vision-based recipe generation.
+  const model = "gemini-3-flash-preview";
 
   const systemInstruction = `You are a professional culinary AI assistant.
     Context:
@@ -51,7 +51,7 @@ export const analyzeFridgeImage = async (
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const response: GenerateContentResponse = await ai.models.generateContent({
       model: model,
       contents: {
         parts: [
@@ -70,7 +70,7 @@ export const analyzeFridgeImage = async (
               id: { type: Type.STRING },
               title: { type: Type.STRING },
               description: { type: Type.STRING },
-              difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] },
+              difficulty: { type: Type.STRING },
               prepTime: { type: Type.STRING },
               calories: { type: Type.INTEGER },
               cuisine: { type: Type.STRING },
@@ -105,16 +105,16 @@ export const analyzeFridgeImage = async (
                 items: { type: Type.STRING }
               }
             },
-            required: ["title", "description", "difficulty", "prepTime", "ingredients", "instructions"]
+            required: ["title", "description", "difficulty", "prepTime", "ingredients", "instructions"],
+            propertyOrdering: ["title", "description", "difficulty", "prepTime", "calories", "ingredients", "instructions"]
           }
         }
       }
     });
 
-    // Access the text property directly as recommended.
+    // Directly access the text property as recommended.
     const resultText = response.text;
     if (resultText) {
-      // Directly parse the trimmed JSON response as recommended in the guidelines
       const recipes = JSON.parse(resultText.trim()) as Recipe[];
       return recipes.map((r, idx) => ({ 
         ...r, 
@@ -140,7 +140,7 @@ export const chatWithChef = async (
 ): Promise<string> => {
   // Always initialize GoogleGenAI right before making the API call.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  // Use gemini-3-pro-preview for complex reasoning and professional conversational tasks.
+  // Use gemini-3-pro-preview for complex reasoning tasks in conversation.
   const model = "gemini-3-pro-preview";
   
   const recipeContext = contextRecipes.length > 0 
@@ -159,14 +159,16 @@ export const chatWithChef = async (
        config: {
          systemInstruction,
        },
+       // Note: Initial history is mapped to GenAI format
        history: history.map(msg => ({
          role: msg.role === 'model' ? 'model' : 'user',
          parts: [{ text: msg.text }]
        }))
      });
 
-     const response = await chat.sendMessage({ message: userMessage });
-     // Access the text property directly as recommended.
+     // Use sendMessage with the required message object
+     const response: GenerateContentResponse = await chat.sendMessage({ message: userMessage });
+     // Directly access text property
      return response.text || "I'm here to help with your cooking journey!";
   } catch (error) {
     console.error("Chat Failed:", error);

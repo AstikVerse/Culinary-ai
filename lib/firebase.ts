@@ -1,4 +1,5 @@
 // Standard modular Firebase imports for v9+ SDK
+// Fixed: In some environments, initializeApp should be imported from the root 'firebase' package
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
