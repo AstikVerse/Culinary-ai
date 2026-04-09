@@ -195,20 +195,9 @@ function App() {
     }
   };
 
-  const startCamera = async () => {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: 'environment' } 
-        });
-        if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-        }
-        setIsCameraOpen(true);
-    } catch (err) {
-        console.error("Error accessing camera:", err);
-        alert("Could not access camera. Please check permissions.");
-    }
-  };
+ const startCamera = () => {
+  setIsCameraOpen(true);
+};
 
   const stopCamera = () => {
       if (videoRef.current && videoRef.current.srcObject) {
@@ -239,7 +228,34 @@ function App() {
           }
       }
   };
+useEffect(() => {
+  const initCamera = async () => {
+    if (!isCameraOpen || !videoRef.current) return;
 
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" }
+        }
+      });
+
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play();
+    } catch (err) {
+      console.error("Camera error:", err);
+      alert("Could not access camera.");
+    }
+  };
+
+  initCamera();
+
+  return () => {
+    if (videoRef.current?.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+    }
+  };
+}, [isCameraOpen]);
   const handleCuisineChange = (newCuisine: Cuisine) => {
     setState(prev => ({ ...prev, cuisine: newCuisine }));
   };
